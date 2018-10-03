@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package ankadbpb;
+
+enum CODE {
+    OK = 0;
+}
+
+message Query {
+    string queryData = 1;
+}
+
+message ReplyQuery {
+    string result = 1;
+}
+
+service AnkaDBServ {
+    rpc query (Query) returns (ReplyQuery) {}
+}

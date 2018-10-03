@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package tradingdb;
+
+message Candle {
+    string code = 1;
+    string name = 2;
+    int64 open = 3;
+    int64 close = 4;
+    int64 high = 5;
+    int64 low = 6;
+    int64 curtime = 7;
+    int64 volume = 8;
+    int64 openInterest = 9;
+}
+
+message CandleChunk {
+    string code = 1;
+    string name = 2;
+    int64 startTime = 3;
+    int64 endTime = 4;
+    
+}

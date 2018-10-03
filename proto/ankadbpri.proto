@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package ankadbpb;
+
+enum CODE {
+    OK = 0;
+}
+
+enum NODETYPE {
+    NORMAL = 0;
+}
+
+message Join {
+    string servAddr = 1;
+    string addr = 2;
+    string name = 3;
+    NODETYPE nodeType = 4;
+}
+
+message ReplyJoin {
+    CODE code = 1;
+    string addr = 2;
+    string name = 3;
+    NODETYPE nodeType = 4;
+}
+
+service AnkaDBPrivateServ {
+    rpc join (Join) returns (ReplyJoin) {}
+}

@@ -1,0 +1,27 @@
+type Candle {
+    curtime: Timestamp!
+    open: Int64!
+    close: Int64!
+    high: Int64!
+    low: Int64!
+    volume: Int64!
+    openInterest: Int64
+}
+
+type CandleChunk {
+    code: String!
+    name: String!
+    startTime: Timestamp!
+    endTime: Timestamp!
+    candles: [Candle]!
+}
+
+type Query {
+    candleChunks(code: String!, name: String!, startTime: Timestamp!, endTime: Timestamp!): [CandleChunk]!
+}
+
+type Mutation {
+    newCandleChunk(code: String!, name: String!, startTime: Timestamp!, endTime: Timestamp!): Boolean
+    insertCandle(code: String!, name: String!, candle: Candle!): Boolean
+    insertCandles(code: String!, name: String!, candles: [Candle]!): Boolean
+}
