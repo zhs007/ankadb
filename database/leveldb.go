@@ -27,8 +27,8 @@ type ankaLDB struct {
 	// quitChan chan chan error // Quit channel to stop the metrics collection before closing the database
 }
 
-// NewJarvisLDB - returns a jarvisDB wrapped object.
-func NewJarvisLDB(dbpath string, cache int, handles int) (Database, error) {
+// NewAnkaLDB - returns a ankaDB wrapped object.
+func NewAnkaLDB(dbpath string, cache int, handles int) (Database, error) {
 	// Ensure we have some minimal caching and file guarantees
 	if cache < 16 {
 		cache = 16
