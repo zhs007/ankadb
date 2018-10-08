@@ -4,14 +4,20 @@ package ankadbpb;
 
 enum CODE {
     OK = 0;
+
+    VAR_PARSE_ERR = 1;
+    LOGIC_ONQUERY_ERR = 2;
 }
 
 message Query {
     string queryData = 1;
+    string varData = 2;
 }
 
 message ReplyQuery {
-    string result = 1;
+    CODE code = 1;
+    string err = 2;
+    string result = 3;
 }
 
 service AnkaDBServ {

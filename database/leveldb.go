@@ -1,7 +1,7 @@
 package database
 
 import (
-	"go.uber.org/zap"
+	// "go.uber.org/zap"
 
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/errors"
@@ -9,8 +9,8 @@ import (
 	"github.com/syndtr/goleveldb/leveldb/iterator"
 	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/util"
-
-	"github.com/zhs007/jarviscore/log"
+	// "github.com/zhs007/jarviscore/log"
+	// "github.com/zhs007/jarviscore/log"
 )
 
 // const (
@@ -37,7 +37,7 @@ func NewAnkaLDB(dbpath string, cache int, handles int) (Database, error) {
 		handles = 16
 	}
 
-	log.Info("NewJarvisDB", zap.Int("cache", cache), zap.Int("handles", handles))
+	// log.Info("NewJarvisDB", zap.Int("cache", cache), zap.Int("handles", handles))
 
 	// Open the db and recover any potential corruptions
 	db, err := leveldb.OpenFile(dbpath, &opt.Options{
@@ -111,9 +111,9 @@ func (db *ankaLDB) Close() {
 	// }
 	err := db.db.Close()
 	if err == nil {
-		log.Info("ankaLDB:Close")
+		// log.Info("ankaLDB:Close")
 	} else {
-		log.Error("ankaLDB:Close", zap.String("err", err.Error()))
+		// log.Error("ankaLDB:Close", zap.String("err", err.Error()))
 	}
 }
 
