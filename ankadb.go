@@ -56,7 +56,7 @@ func NewAnkaDB(cfg Config, logic DBLogic) *AnkaDB {
 func (anka *AnkaDB) Start() {
 	go anka.serv.start()
 	if anka.servHTTP != nil {
-		anka.servHTTP.start()
+		go anka.servHTTP.start()
 	}
 
 	anka.waitEnd()
@@ -76,14 +76,16 @@ func (anka *AnkaDB) waitEnd() {
 		for {
 			select {
 			case signal := <-anka.chanSignal:
-				fmt.Printf("get signal " + signal.String())
+				fmt.Printf("get signal " + signal.String() + "\n")
 				anka.Stop()
 			case <-anka.serv.chanServ:
+				fmt.Printf("grpcserv exit \n")
 				exitnums++
 				if exitnums >= 0 {
 					return
 				}
 			case <-anka.servHTTP.chanServ:
+				fmt.Printf("httpserv exit \n")
 				exitnums++
 				if exitnums >= 0 {
 					return
@@ -95,7 +97,7 @@ func (anka *AnkaDB) waitEnd() {
 	for {
 		select {
 		case signal := <-anka.chanSignal:
-			fmt.Printf("get signal " + signal.String())
+			fmt.Printf("get signal " + signal.String() + "\n")
 			anka.Stop()
 		case <-anka.serv.chanServ:
 			return
