@@ -38,3 +38,17 @@ func NewError(errcode pb.CODE) AnkaError {
 
 	return err
 }
+
+// BuildErrorString -
+func BuildErrorString(errcode pb.CODE) string {
+	return "ankaError - [" + pb.CODE_name[int32(FormatCode(errcode))] + "]"
+}
+
+// GetErrCode -
+func GetErrCode(err interface{}) pb.CODE {
+	if ce, ok := err.(ankaError); ok {
+		return ce.ErrCode()
+	}
+
+	return pb.CODE_INVALID_CODE
+}
