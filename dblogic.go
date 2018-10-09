@@ -1,8 +1,12 @@
 package ankadb
 
-import "github.com/graphql-go/graphql"
+import (
+	"context"
+
+	"github.com/graphql-go/graphql"
+)
 
 // DBLogic -
 type DBLogic interface {
-	OnQuery(request string, values map[string]interface{}) (*graphql.Result, error)
+	OnQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error)
 }

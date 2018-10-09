@@ -12,7 +12,7 @@ import (
 type AnkaClient interface {
 	Start(addr string) error
 	Stop() error
-	Query(ctx context.Context, request string, varval string) error
+	Query(ctx context.Context, name string, request string, varval string) error
 }
 
 // AnkaClient -
@@ -46,7 +46,7 @@ func (c *ankaClient) Stop() error {
 	return nil
 }
 
-func (c *ankaClient) Query(ctx context.Context, request string, varval string) error {
+func (c *ankaClient) Query(ctx context.Context, name string, request string, varval string) error {
 	if c.conn == nil {
 		return ankadberr.NewError(pb.CODE_CLIENT_NO_CONN)
 	}
@@ -55,6 +55,7 @@ func (c *ankaClient) Query(ctx context.Context, request string, varval string) e
 	defer cancel()
 
 	r, err := c.client.Query(curctx, &pb.Query{
+		Name:      name,
 		QueryData: request,
 		VarData:   varval,
 	})

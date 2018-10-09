@@ -7,6 +7,9 @@ enum CODE {
 
     VAR_PARSE_ERR = 1;
     LOGIC_ONQUERY_ERR = 2;
+    CTX_CURDB_ERR = 3;
+    PROTOBUF_ENCODE_ERR = 4;
+    DB_PUT_ERR = 5;
 
     CLIENT_NO_CONN = 10000;
 
@@ -14,8 +17,9 @@ enum CODE {
 }
 
 message Query {
-    string queryData = 1;
-    string varData = 2;
+    string name = 1;
+    string queryData = 2;
+    string varData = 3;
 }
 
 message ReplyQuery {

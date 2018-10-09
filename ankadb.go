@@ -9,8 +9,9 @@ import (
 
 // AnkaDB -
 type AnkaDB struct {
-	dbmgr      DBMgr
+	MgrDB      DBMgr
 	serv       *ankaServer
+	servHTTP   *ankaHTTPServer
 	cfg        Config
 	logic      DBLogic
 	chanSignal chan os.Signal
@@ -25,7 +26,7 @@ func NewAnkaDB(cfg Config, logic DBLogic) *AnkaDB {
 	}
 
 	anka := AnkaDB{
-		dbmgr:      dbmgr,
+		MgrDB:      dbmgr,
 		cfg:        cfg,
 		logic:      logic,
 		chanSignal: make(chan os.Signal, 1),
@@ -34,6 +35,15 @@ func NewAnkaDB(cfg Config, logic DBLogic) *AnkaDB {
 	serv, err := newServer(&anka)
 	if err != nil {
 		return nil
+	}
+
+	if cfg.AddrHTTP != "" {
+		httpserv, err := newHTTPServer(&anka)
+		if err != nil {
+			return nil
+		}
+
+		anka.servHTTP = httpserv
 	}
 
 	anka.serv = serv
@@ -45,6 +55,9 @@ func NewAnkaDB(cfg Config, logic DBLogic) *AnkaDB {
 // Start -
 func (anka *AnkaDB) Start() {
 	go anka.serv.start()
+	if anka.servHTTP != nil {
+		anka.servHTTP.start()
+	}
 
 	anka.waitEnd()
 }
@@ -52,10 +65,33 @@ func (anka *AnkaDB) Start() {
 // Stop -
 func (anka *AnkaDB) Stop() {
 	anka.serv.stop()
-
+	if anka.servHTTP != nil {
+		anka.servHTTP.stop()
+	}
 }
 
 func (anka *AnkaDB) waitEnd() {
+	if anka.servHTTP != nil {
+		exitnums := -2
+		for {
+			select {
+			case signal := <-anka.chanSignal:
+				fmt.Printf("get signal " + signal.String())
+				anka.Stop()
+			case <-anka.serv.chanServ:
+				exitnums++
+				if exitnums >= 0 {
+					return
+				}
+			case <-anka.servHTTP.chanServ:
+				exitnums++
+				if exitnums >= 0 {
+					return
+				}
+			}
+		}
+	}
+
 	for {
 		select {
 		case signal := <-anka.chanSignal:

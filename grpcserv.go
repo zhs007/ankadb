@@ -19,7 +19,7 @@ type ankaServer struct {
 
 // newServer -
 func newServer(anka *AnkaDB) (*ankaServer, error) {
-	lis, err := net.Listen("tcp", anka.cfg.AddrBind)
+	lis, err := net.Listen("tcp", anka.cfg.AddrGRPC)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,10 @@ func (s *ankaServer) Query(ctx context.Context, in *pb.Query) (*pb.ReplyQuery, e
 		return &rq, nil
 	}
 
-	result, err := s.anka.logic.OnQuery(in.GetQueryData(), mapval)
+	curdb := s.anka.MgrDB.GetDB(in.GetName())
+	curctx := context.WithValue(ctx, interface{}("curdb"), curdb)
+
+	result, err := s.anka.logic.OnQuery(curctx, in.GetQueryData(), mapval)
 	if err != nil {
 		rq := pb.ReplyQuery{
 			Code: pb.CODE_LOGIC_ONQUERY_ERR,

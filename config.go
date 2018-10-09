@@ -20,8 +20,9 @@ type DBConfig struct {
 
 // Config -
 type Config struct {
-	AddrBind   string     `yaml:"addrbind"`
+	AddrGRPC   string     `yaml:"addrgrpc"`
 	PathDBRoot string     `yaml:"pathdbroot"`
+	AddrHTTP   string     `yaml:"addrhttp"`
 	ListDB     []DBConfig `yaml:"listdb"`
 	// Cfg DBConfig
 }
