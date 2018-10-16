@@ -10,6 +10,20 @@ import (
 	pb "github.com/zhs007/ankadb/proto"
 )
 
+// GetContextValueAnkaDB -
+func GetContextValueAnkaDB(ctx context.Context, key interface{}) *AnkaDB {
+	val := ctx.Value(key)
+	if val == nil {
+		return nil
+	}
+
+	if db, ok := val.(*AnkaDB); ok {
+		return db
+	}
+
+	return nil
+}
+
 // GetContextValueDatabase -
 func GetContextValueDatabase(ctx context.Context, key interface{}) database.Database {
 	val := ctx.Value(key)

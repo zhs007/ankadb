@@ -20,7 +20,7 @@ type ankaHTTPServer struct {
 }
 
 func (s *ankaHTTPServer) procGraphQL(w http.ResponseWriter, r *http.Request) *graphql.Result {
-	ankadbname := r.Header.Get("Ankadbname")
+	// ankadbname := r.Header.Get("Ankadbname")
 
 	req, _ := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
@@ -42,8 +42,8 @@ func (s *ankaHTTPServer) procGraphQL(w http.ResponseWriter, r *http.Request) *gr
 		// return MakeGraphQLErrorResult(pb.CODE_HTTP_VARIABLE_ERR)
 	}
 
-	curdb := s.anka.MgrDB.GetDB(ankadbname)
-	curctx := context.WithValue(r.Context(), interface{}("curdb"), curdb)
+	// curdb := s.anka.MgrDB.GetDB(ankadbname)
+	curctx := context.WithValue(r.Context(), interface{}("ankadb"), s.anka)
 
 	result1, err := s.anka.logic.OnQuery(curctx, querystr, mapval)
 	if err != nil {
@@ -56,60 +56,9 @@ func (s *ankaHTTPServer) procGraphQL(w http.ResponseWriter, r *http.Request) *gr
 func (s *ankaHTTPServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.RequestURI == "/graphql" {
 		result := s.procGraphQL(w, r)
-		// ankadbname := r.Header.Get("Ankadbname")
-
-		// req, _ := ioutil.ReadAll(r.Body)
-		// defer r.Body.Close()
-		// // fmt.Printf("%s\n", result)
-
-		// var mapreq map[string]interface{}
-		// err := json.Unmarshal([]byte(req), &mapreq)
-		// if err != nil {
-		// 	// rq := pb.ReplyQuery{
-		// 	// 	Code: pb.CODE_VAR_PARSE_ERR,
-		// 	// 	Err:  err.Error(),
-		// 	// }
-		// 	return
-		// }
-
-		// querystr, ok := mapreq["query"].(string)
-		// if !ok {
-		// 	return
-		// }
-
-		// mapval, ok1 := mapreq["variables"].(map[string]interface{})
-		// if !ok1 {
-		// 	return
-		// }
-
-		// // var mapval map[string]interface{}
-		// // err = json.Unmarshal([]byte(variablesstr), &mapval)
-		// // if err != nil {
-		// // 	// rq := pb.ReplyQuery{
-		// // 	// 	Code: pb.CODE_VAR_PARSE_ERR,
-		// // 	// 	Err:  err.Error(),
-		// // 	// }
-		// // 	return
-		// // }
-
-		// // json.
-		// curdb := s.anka.MgrDB.GetDB(ankadbname)
-		// curctx := context.WithValue(r.Context(), interface{}("curdb"), curdb)
-
-		// result1, err := s.anka.logic.OnQuery(curctx, querystr, mapval)
-		// if err != nil {
-		// 	// rq := pb.ReplyQuery{
-		// 	// 	Code: pb.CODE_LOGIC_ONQUERY_ERR,
-		// 	// 	Err:  err.Error(),
-		// 	// }
-		// 	// return &rq, nil
-		// 	return
-		// }
 
 		json.NewEncoder(w).Encode(result)
-		// buf, _ := json.Marshal(result)
 	}
-	// fmt.Print("http")
 }
 
 // newHTTPServer -
@@ -133,21 +82,15 @@ func newHTTPServer(anka *AnkaDB) (*ankaHTTPServer, error) {
 }
 
 func (s *ankaHTTPServer) start() (err error) {
-	// fmt.Print("start...")
-	err = http.Serve(s.lis, s) //s.grpcServ.Serve(s.lis)
-	// fmt.Print("end start...")
+	err = http.Serve(s.lis, s)
+
 	s.chanServ <- 0
-	// fmt.Print("exit")
 
 	return
 }
 
 func (s *ankaHTTPServer) stop() {
-	// fmt.Print("stop0...")
 	s.lis.Close()
-	// fmt.Print("stop1...")
-	// s.grpcServ.Stop()
-	// fmt.Print("stop2...")
 
 	return
 }

@@ -40,21 +40,17 @@ func newServer(anka *AnkaDB) (*ankaServer, error) {
 }
 
 func (s *ankaServer) start() (err error) {
-	// fmt.Print("start...")
 	err = s.grpcServ.Serve(s.lis)
-	// fmt.Print("end start...")
+
 	s.chanServ <- 0
-	// fmt.Print("exit")
 
 	return
 }
 
 func (s *ankaServer) stop() {
-	// fmt.Print("stop0...")
 	s.lis.Close()
-	// fmt.Print("stop1...")
+
 	s.grpcServ.Stop()
-	// fmt.Print("stop2...")
 
 	return
 }
@@ -71,8 +67,8 @@ func (s *ankaServer) Query(ctx context.Context, in *pb.Query) (*pb.ReplyQuery, e
 		return &rq, nil
 	}
 
-	curdb := s.anka.MgrDB.GetDB(in.GetName())
-	curctx := context.WithValue(ctx, interface{}("curdb"), curdb)
+	// curdb := s.anka.MgrDB.GetDB(in.GetName())
+	curctx := context.WithValue(ctx, interface{}("ankadb"), s.anka)
 
 	result, err := s.anka.logic.OnQuery(curctx, in.GetQueryData(), mapval)
 	if err != nil {
@@ -89,4 +85,30 @@ func (s *ankaServer) Query(ctx context.Context, in *pb.Query) (*pb.ReplyQuery, e
 		Code:   0,
 		Result: string(buf),
 	}, nil
+}
+
+// QueryStream implements ankadbpb.ankaServer
+func (s *ankaServer) QueryStream(in *pb.Query, gs pb.AnkaDBServ_QueryStreamServer) error {
+	var mapval map[string]interface{}
+	err := json.Unmarshal([]byte(in.GetVarData()), &mapval)
+	if err != nil {
+		gs.Send(&pb.ReplyQuery{
+			Code: pb.CODE_VAR_PARSE_ERR,
+			Err:  err.Error(),
+		})
+
+		return nil
+	}
+
+	err = s.anka.logic.OnQueryStream(gs.Context(), in.GetQueryData(), mapval, func(rq *pb.ReplyQuery) {
+		gs.Send(rq)
+	})
+	if err != nil {
+		gs.Send(&pb.ReplyQuery{
+			Code: pb.CODE_ONQUERYSTREAM_ERR,
+			Err:  err.Error(),
+		})
+	}
+
+	return nil
 }
