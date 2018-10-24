@@ -3,6 +3,7 @@ package ankadb
 import (
 	"context"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/graphql/gqlerrors"
 	"github.com/zhs007/ankadb/database"
@@ -49,4 +50,34 @@ func MakeGraphQLErrorResult(code pb.CODE) *graphql.Result {
 	result.Errors = append(result.Errors, err)
 
 	return &result
+}
+
+// PutMsg2DB - put protobuf message to database
+func PutMsg2DB(db database.Database, key []byte, msg proto.Message) error {
+	data, err := proto.Marshal(msg)
+	if err != nil {
+		return ankadberr.NewError(pb.CODE_PROTOBUF_ENCODE_ERR)
+	}
+
+	err = db.Put(key, data)
+	if err != nil {
+		return ankadberr.NewError(pb.CODE_DB_PUT_ERR)
+	}
+
+	return nil
+}
+
+// GetMsgFromDB - get protobuf message from database
+func GetMsgFromDB(db database.Database, key []byte, msg proto.Message) error {
+	buf, err := db.Get(key)
+	if err != nil {
+		return err
+	}
+
+	err = proto.Unmarshal(buf, msg)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

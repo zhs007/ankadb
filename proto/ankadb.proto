@@ -16,6 +16,9 @@ enum CODE {
     ONQUERYSTREAM_ERR = 9;
     CTX_ANKADB_ERR = 10;
     TIMEZONE_ERR = 11;
+    CTX_SNAPSHOTMGR_ERR = 12;
+    MAKE_SNAPSHOT_ERR = 13;
+    QUERY_PARAM_ERR = 14;
 
     HTTP_BODY_PARSE_ERR = 100;
     HTTP_NO_QUERY = 101;
@@ -24,6 +27,17 @@ enum CODE {
     CLIENT_NO_CONN = 10000;
 
     INVALID_CODE = 20000;
+}
+
+message SnapshotMgr {
+    int64 maxSnapshotID = 1;
+    repeated int64 snapshots = 2;
+}
+
+message Snapshot {
+    int64 snapshotID = 1;
+    repeated string keys = 2;
+    int64 createTime = 3;
 }
 
 message Query {

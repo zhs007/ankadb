@@ -8,12 +8,13 @@ import (
 type DBMgr interface {
 	AddDB(cfg DBConfig) error
 	GetDB(name string) database.Database
+	GetMgrSnapshot(name string) *SnapshotMgr
 }
 
 // NewDBMgr - new DBMgr
 func NewDBMgr(lstDB []DBConfig) (DBMgr, error) {
 	mgr := &dbMgr{
-		mapDB: make(map[string]database.Database),
+		mapDB: make(map[string]dbObj),
 	}
 
 	for _, val := range lstDB {
@@ -26,8 +27,13 @@ func NewDBMgr(lstDB []DBConfig) (DBMgr, error) {
 	return mgr, nil
 }
 
+type dbObj struct {
+	db          database.Database
+	mgrSnapshot SnapshotMgr
+}
+
 type dbMgr struct {
-	mapDB map[string]database.Database
+	mapDB map[string]dbObj
 }
 
 // AddDB -
@@ -38,7 +44,14 @@ func (mgr *dbMgr) AddDB(cfg DBConfig) error {
 			return err
 		}
 
-		mgr.mapDB[cfg.Name] = db
+		co := dbObj{
+			db:          db,
+			mgrSnapshot: newSnapshotMgr(db),
+		}
+
+		co.mgrSnapshot.init()
+
+		mgr.mapDB[cfg.Name] = co
 	}
 
 	return nil
@@ -47,7 +60,15 @@ func (mgr *dbMgr) AddDB(cfg DBConfig) error {
 // GetDB -
 func (mgr *dbMgr) GetDB(name string) database.Database {
 	if db, ok := mgr.mapDB[name]; ok {
-		return db
+		return db.db
+	}
+
+	return nil
+}
+
+func (mgr *dbMgr) GetMgrSnapshot(name string) *SnapshotMgr {
+	if db, ok := mgr.mapDB[name]; ok {
+		return &db.mgrSnapshot
 	}
 
 	return nil
