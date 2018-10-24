@@ -10,8 +10,8 @@ type DBMgr interface {
 	GetDB(name string) database.Database
 }
 
-// newDBMgr -
-func newDBMgr(lstDB []DBConfig) (DBMgr, error) {
+// NewDBMgr - new DBMgr
+func NewDBMgr(lstDB []DBConfig) (DBMgr, error) {
 	mgr := &dbMgr{
 		mapDB: make(map[string]database.Database),
 	}

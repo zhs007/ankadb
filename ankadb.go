@@ -20,7 +20,7 @@ type AnkaDB struct {
 // NewAnkaDB -
 func NewAnkaDB(cfg Config, logic DBLogic) *AnkaDB {
 	// return nil
-	dbmgr, err := newDBMgr(cfg.ListDB)
+	dbmgr, err := NewDBMgr(cfg.ListDB)
 	if err != nil {
 		return nil
 	}
@@ -32,9 +32,13 @@ func NewAnkaDB(cfg Config, logic DBLogic) *AnkaDB {
 		chanSignal: make(chan os.Signal, 1),
 	}
 
-	serv, err := newServer(&anka)
-	if err != nil {
-		return nil
+	if cfg.AddrGRPC != "" {
+		serv, err := newServer(&anka)
+		if err != nil {
+			return nil
+		}
+
+		anka.serv = serv
 	}
 
 	if cfg.AddrHTTP != "" {
@@ -46,7 +50,6 @@ func NewAnkaDB(cfg Config, logic DBLogic) *AnkaDB {
 		anka.servHTTP = httpserv
 	}
 
-	anka.serv = serv
 	signal.Notify(anka.chanSignal, os.Interrupt, os.Kill, syscall.SIGSTOP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGTSTP)
 
 	return &anka
@@ -104,12 +107,3 @@ func (anka *AnkaDB) waitEnd() {
 		}
 	}
 }
-
-// // NewAnkaDB -
-// func NewAnkaDB(cfg DBConfig) (database.Database, error) {
-// 	if cfg.Engine == "leveldb" {
-// 		return database.NewAnkaLDB(cfg.DBPath, 16, 16)
-// 	}
-
-// 	return nil, nil
-// }
