@@ -3,8 +3,8 @@ package ankadb
 import (
 	"os"
 
-	"github.com/zhs007/jarviscore/err"
-	pb "github.com/zhs007/jarviscore/proto"
+	"github.com/zhs007/ankadb/err"
+	pb "github.com/zhs007/ankadb/proto"
 )
 
 func loadFile(filename string) ([]byte, error) {
@@ -28,7 +28,7 @@ func loadFile(filename string) ([]byte, error) {
 	}
 
 	if int64(bytesread) != fileSize {
-		return nil, jarviserr.NewError(pb.CODE_INVALID_FILEREADSIZE)
+		return nil, ankadberr.NewError(pb.CODE_LOADFILE_INVALID_FILEREADSIZE)
 	}
 
 	return buffer, nil

@@ -2,7 +2,9 @@ package ankadb
 
 import (
 	"context"
+	"encoding/json"
 
+	"github.com/goinggo/mapstructure"
 	"github.com/golang/protobuf/proto"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/graphql/gqlerrors"
@@ -77,6 +79,51 @@ func GetMsgFromDB(db database.Database, key []byte, msg proto.Message) error {
 	err = proto.Unmarshal(buf, msg)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// GetMsgFromParam - get protobuf message from param
+func GetMsgFromParam(params graphql.ResolveParams, paramName string, msg proto.Message) error {
+	ci := params.Args[paramName].(map[string]interface{})
+
+	if err := mapstructure.Decode(ci, msg); err != nil {
+		return ankadberr.NewError(pb.CODE_INPUTOBJ_PARSE_ERR)
+	}
+
+	return nil
+}
+
+// MakeParamsFromMsg - change protobuf message to param
+func MakeParamsFromMsg(params map[string]interface{}, paramName string, msg proto.Message) error {
+	cv := make(map[string]interface{})
+
+	inrec, err := json.Marshal(msg)
+	if err != nil {
+		return ankadberr.NewError(pb.CODE_QUERY_ERR_MSG_TO_JSON)
+	}
+
+	json.Unmarshal(inrec, &cv)
+
+	params[paramName] = cv
+
+	return nil
+}
+
+// MakeObjFromResult - make object from graphql.Result
+func MakeObjFromResult(result *graphql.Result, obj interface{}) error {
+	if err := mapstructure.Decode(result.Data, obj); err != nil {
+		return ankadberr.NewError(pb.CODE_QUERY_INVALID_RESULT_DATA_OBJ)
+	}
+
+	return nil
+}
+
+// MakeMsgFromResult - make protobuf object from graphql.Result
+func MakeMsgFromResult(result *graphql.Result, msg proto.Message) error {
+	if err := mapstructure.Decode(result.Data, msg); err != nil {
+		return ankadberr.NewError(pb.CODE_QUERY_INVALID_RESULT_DATA_MSG)
 	}
 
 	return nil

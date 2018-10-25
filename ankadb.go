@@ -1,10 +1,15 @@
 package ankadb
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/graphql-go/graphql"
+	"github.com/zhs007/ankadb/err"
+	pb "github.com/zhs007/ankadb/proto"
 )
 
 // AnkaDB -
@@ -18,11 +23,11 @@ type AnkaDB struct {
 }
 
 // NewAnkaDB -
-func NewAnkaDB(cfg Config, logic DBLogic) *AnkaDB {
+func NewAnkaDB(cfg Config, logic DBLogic) (*AnkaDB, error) {
 	// return nil
 	dbmgr, err := NewDBMgr(cfg.ListDB)
 	if err != nil {
-		return nil
+		return nil, ankadberr.NewError(pb.CODE_INIT_NEW_DBMGR_ERR)
 	}
 
 	anka := AnkaDB{
@@ -35,7 +40,7 @@ func NewAnkaDB(cfg Config, logic DBLogic) *AnkaDB {
 	if cfg.AddrGRPC != "" {
 		serv, err := newServer(&anka)
 		if err != nil {
-			return nil
+			return nil, ankadberr.NewError(pb.CODE_INIT_NEW_GRPCSERV_ERR)
 		}
 
 		anka.serv = serv
@@ -44,7 +49,7 @@ func NewAnkaDB(cfg Config, logic DBLogic) *AnkaDB {
 	if cfg.AddrHTTP != "" {
 		httpserv, err := newHTTPServer(&anka)
 		if err != nil {
-			return nil
+			return nil, ankadberr.NewError(pb.CODE_INIT_NEW_HTTPSERV_ERR)
 		}
 
 		anka.servHTTP = httpserv
@@ -52,12 +57,19 @@ func NewAnkaDB(cfg Config, logic DBLogic) *AnkaDB {
 
 	signal.Notify(anka.chanSignal, os.Interrupt, os.Kill, syscall.SIGSTOP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGTSTP)
 
-	return &anka
+	return &anka, nil
 }
 
 // Start -
 func (anka *AnkaDB) Start() {
-	go anka.serv.start()
+	if anka.serv == nil && anka.servHTTP == nil {
+		return
+	}
+
+	if anka.serv != nil {
+		go anka.serv.start()
+	}
+
 	if anka.servHTTP != nil {
 		go anka.servHTTP.start()
 	}
@@ -106,4 +118,9 @@ func (anka *AnkaDB) waitEnd() {
 			return
 		}
 	}
+}
+
+// LocalQuery - local query
+func (anka *AnkaDB) LocalQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error) {
+	return anka.logic.OnQuery(ctx, request, values)
 }
