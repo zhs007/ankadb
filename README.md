@@ -10,9 +10,10 @@
 
 [``TradingDB``](https://github.com/zhs007/tradingdb) is an implementation of ``AnkaDB``.
 
+---
 ### Update
 
-##### v0.1.0
+##### **v0.1**
 - Complete basic single node.
 - Support ``graphql`` query.
 - Support ``leveldb``.
