@@ -8,4 +8,4 @@ It is now single-node and will soon support multiple nodes, using the ``raft`` p
 It queries and modifies data with ``GraphQL``.  
 It used ``GRPC`` & ``ProtoBuf v3``.  
 
-``TradingDB`` is an implementation of ``AnkaDB``.
+[``TradingDB``](https://github.com/zhs007/tradingdb) is an implementation of ``AnkaDB``.
