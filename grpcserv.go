@@ -21,7 +21,7 @@ type ankaServer struct {
 func newServer(anka *AnkaDB) (*ankaServer, error) {
 	lis, err := net.Listen("tcp", anka.cfg.AddrGRPC)
 	if err != nil {
-		return nil, err
+		return nil, ErrGRPCListen
 	}
 
 	// log.Info("Listen", zap.String("addr", node.myinfo.BindAddr))
@@ -39,10 +39,10 @@ func newServer(anka *AnkaDB) (*ankaServer, error) {
 	return s, nil
 }
 
-func (s *ankaServer) start() (err error) {
+func (s *ankaServer) start(ctx context.Context) (err error) {
 	err = s.grpcServ.Serve(s.lis)
 
-	s.chanServ <- 0
+	// s.chanServ <- 0
 
 	return
 }
@@ -61,8 +61,7 @@ func (s *ankaServer) Query(ctx context.Context, in *pb.Query) (*pb.ReplyQuery, e
 	err := json.Unmarshal([]byte(in.GetVarData()), &mapval)
 	if err != nil {
 		rq := pb.ReplyQuery{
-			Code: pb.CODE_VAR_PARSE_ERR,
-			Err:  err.Error(),
+			Err: err.Error(),
 		}
 		return &rq, nil
 	}
@@ -73,8 +72,7 @@ func (s *ankaServer) Query(ctx context.Context, in *pb.Query) (*pb.ReplyQuery, e
 	result, err := s.anka.logic.OnQuery(curctx, in.GetQueryData(), mapval)
 	if err != nil {
 		rq := pb.ReplyQuery{
-			Code: pb.CODE_LOGIC_ONQUERY_ERR,
-			Err:  err.Error(),
+			Err: err.Error(),
 		}
 		return &rq, nil
 	}
@@ -82,7 +80,6 @@ func (s *ankaServer) Query(ctx context.Context, in *pb.Query) (*pb.ReplyQuery, e
 	buf, _ := json.Marshal(result)
 
 	return &pb.ReplyQuery{
-		Code:   0,
 		Result: string(buf),
 	}, nil
 }
@@ -93,8 +90,7 @@ func (s *ankaServer) QueryStream(in *pb.Query, gs pb.AnkaDBServ_QueryStreamServe
 	err := json.Unmarshal([]byte(in.GetVarData()), &mapval)
 	if err != nil {
 		gs.Send(&pb.ReplyQuery{
-			Code: pb.CODE_VAR_PARSE_ERR,
-			Err:  err.Error(),
+			Err: err.Error(),
 		})
 
 		return nil
@@ -105,8 +101,7 @@ func (s *ankaServer) QueryStream(in *pb.Query, gs pb.AnkaDBServ_QueryStreamServe
 	})
 	if err != nil {
 		gs.Send(&pb.ReplyQuery{
-			Code: pb.CODE_ONQUERYSTREAM_ERR,
-			Err:  err.Error(),
+			Err: err.Error(),
 		})
 	}
 

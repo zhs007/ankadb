@@ -8,8 +8,6 @@ import (
 	"net/http"
 
 	"github.com/graphql-go/graphql"
-	"github.com/zhs007/ankadb/err"
-	pb "github.com/zhs007/ankadb/proto"
 )
 
 // ankaHTTPServer
@@ -28,12 +26,12 @@ func (s *ankaHTTPServer) procGraphQL(w http.ResponseWriter, r *http.Request) *gr
 	var mapreq map[string]interface{}
 	err := json.Unmarshal([]byte(req), &mapreq)
 	if err != nil {
-		return MakeGraphQLErrorResult(pb.CODE_HTTP_BODY_PARSE_ERR)
+		return MakeGraphQLErrorResult(err)
 	}
 
 	querystr, ok := mapreq["query"].(string)
 	if !ok {
-		return MakeGraphQLErrorResult(pb.CODE_HTTP_NO_QUERY)
+		return MakeGraphQLErrorResult(ErrHTTPNoQuery)
 	}
 
 	mapval, ok1 := mapreq["variables"].(map[string]interface{})
@@ -47,7 +45,7 @@ func (s *ankaHTTPServer) procGraphQL(w http.ResponseWriter, r *http.Request) *gr
 
 	result1, err := s.anka.logic.OnQuery(curctx, querystr, mapval)
 	if err != nil {
-		return MakeGraphQLErrorResult(ankadberr.GetErrCode(err))
+		return MakeGraphQLErrorResult(err)
 	}
 
 	return result1
@@ -65,7 +63,7 @@ func (s *ankaHTTPServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func newHTTPServer(anka *AnkaDB) (*ankaHTTPServer, error) {
 	lis, err := net.Listen("tcp", anka.cfg.AddrHTTP)
 	if err != nil {
-		return nil, err
+		return nil, ErrHTTPListen
 	}
 
 	// http.Serve(lis)
@@ -81,10 +79,10 @@ func newHTTPServer(anka *AnkaDB) (*ankaHTTPServer, error) {
 	return s, nil
 }
 
-func (s *ankaHTTPServer) start() (err error) {
+func (s *ankaHTTPServer) start(ctx context.Context) (err error) {
 	err = http.Serve(s.lis, s)
 
-	s.chanServ <- 0
+	// s.chanServ <- 0
 
 	return
 }

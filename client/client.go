@@ -3,7 +3,6 @@ package ankadbclient
 import (
 	"context"
 
-	"github.com/zhs007/ankadb/err"
 	pb "github.com/zhs007/ankadb/proto"
 	"google.golang.org/grpc"
 )
@@ -48,7 +47,7 @@ func (c *ankaClient) Stop() error {
 
 func (c *ankaClient) Query(ctx context.Context, request string, varval string) (*pb.ReplyQuery, error) {
 	if c.conn == nil {
-		return nil, ankadberr.NewError(pb.CODE_CLIENT_NO_CONN)
+		return nil, ErrNoConn
 	}
 
 	curctx, cancel := context.WithCancel(ctx)
@@ -63,7 +62,7 @@ func (c *ankaClient) Query(ctx context.Context, request string, varval string) (
 		return nil, err
 	}
 
-	if r.Code == pb.CODE_OK {
+	if r.Err == "" {
 		return r, nil
 	}
 

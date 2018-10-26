@@ -9,8 +9,6 @@ import (
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/graphql/gqlerrors"
 	"github.com/zhs007/ankadb/database"
-	"github.com/zhs007/ankadb/err"
-	pb "github.com/zhs007/ankadb/proto"
 )
 
 // GetContextValueAnkaDB -
@@ -42,14 +40,14 @@ func GetContextValueDatabase(ctx context.Context, key interface{}) database.Data
 }
 
 // MakeGraphQLErrorResult -
-func MakeGraphQLErrorResult(code pb.CODE) *graphql.Result {
+func MakeGraphQLErrorResult(err error) *graphql.Result {
 	result := graphql.Result{}
 
-	err := gqlerrors.FormattedError{
-		Message: ankadberr.BuildErrorString(code),
+	gqlerr := gqlerrors.FormattedError{
+		Message: err.Error(),
 	}
 
-	result.Errors = append(result.Errors, err)
+	result.Errors = append(result.Errors, gqlerr)
 
 	return &result
 }
@@ -58,12 +56,12 @@ func MakeGraphQLErrorResult(code pb.CODE) *graphql.Result {
 func PutMsg2DB(db database.Database, key []byte, msg proto.Message) error {
 	data, err := proto.Marshal(msg)
 	if err != nil {
-		return ankadberr.NewError(pb.CODE_PROTOBUF_ENCODE_ERR)
+		return err
 	}
 
 	err = db.Put(key, data)
 	if err != nil {
-		return ankadberr.NewError(pb.CODE_DB_PUT_ERR)
+		return err
 	}
 
 	return nil
@@ -89,7 +87,7 @@ func GetMsgFromParam(params graphql.ResolveParams, paramName string, msg proto.M
 	ci := params.Args[paramName].(map[string]interface{})
 
 	if err := mapstructure.Decode(ci, msg); err != nil {
-		return ankadberr.NewError(pb.CODE_INPUTOBJ_PARSE_ERR)
+		return err
 	}
 
 	return nil
@@ -101,7 +99,7 @@ func MakeParamsFromMsg(params map[string]interface{}, paramName string, msg prot
 
 	inrec, err := json.Marshal(msg)
 	if err != nil {
-		return ankadberr.NewError(pb.CODE_QUERY_ERR_MSG_TO_JSON)
+		return err
 	}
 
 	json.Unmarshal(inrec, &cv)
@@ -114,7 +112,7 @@ func MakeParamsFromMsg(params map[string]interface{}, paramName string, msg prot
 // MakeObjFromResult - make object from graphql.Result
 func MakeObjFromResult(result *graphql.Result, obj interface{}) error {
 	if err := mapstructure.Decode(result.Data, obj); err != nil {
-		return ankadberr.NewError(pb.CODE_QUERY_INVALID_RESULT_DATA_OBJ)
+		return err
 	}
 
 	return nil
@@ -123,7 +121,7 @@ func MakeObjFromResult(result *graphql.Result, obj interface{}) error {
 // MakeMsgFromResult - make protobuf object from graphql.Result
 func MakeMsgFromResult(result *graphql.Result, msg proto.Message) error {
 	if err := mapstructure.Decode(result.Data, msg); err != nil {
-		return ankadberr.NewError(pb.CODE_QUERY_INVALID_RESULT_DATA_MSG)
+		return err
 	}
 
 	return nil
