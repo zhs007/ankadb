@@ -12,9 +12,9 @@ import (
 
 // ankaHTTPServer
 type ankaHTTPServer struct {
-	anka     *AnkaDB
-	lis      net.Listener
-	chanServ chan int
+	anka *AnkaDB
+	lis  net.Listener
+	// chanServ chan int
 }
 
 func (s *ankaHTTPServer) procGraphQL(w http.ResponseWriter, r *http.Request) *graphql.Result {
@@ -69,9 +69,9 @@ func newHTTPServer(anka *AnkaDB) (*ankaHTTPServer, error) {
 	// http.Serve(lis)
 
 	s := &ankaHTTPServer{
-		anka:     anka,
-		lis:      lis,
-		chanServ: make(chan int),
+		anka: anka,
+		lis:  lis,
+		// chanServ: make(chan int),
 	}
 
 	// pb.RegisterAnkaDBServServer(grpcServ, s)

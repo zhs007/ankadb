@@ -14,7 +14,7 @@ type ankaServer struct {
 	anka     *AnkaDB
 	lis      net.Listener
 	grpcServ *grpc.Server
-	chanServ chan int
+	// chanServ chan int
 }
 
 // newServer -
@@ -31,7 +31,7 @@ func newServer(anka *AnkaDB) (*ankaServer, error) {
 		anka:     anka,
 		lis:      lis,
 		grpcServ: grpcServ,
-		chanServ: make(chan int),
+		// chanServ: make(chan int),
 	}
 
 	pb.RegisterAnkaDBServServer(grpcServ, s)

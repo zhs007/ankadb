@@ -2,19 +2,18 @@ package ankadb
 
 import (
 	"context"
-	"os"
 
 	"github.com/graphql-go/graphql"
 )
 
 // AnkaDB -
 type AnkaDB struct {
-	MgrDB      DBMgr
-	serv       *ankaServer
-	servHTTP   *ankaHTTPServer
-	cfg        Config
-	logic      DBLogic
-	chanSignal chan os.Signal
+	MgrDB    DBMgr
+	serv     *ankaServer
+	servHTTP *ankaHTTPServer
+	cfg      Config
+	logic    DBLogic
+	// chanSignal chan os.Signal
 }
 
 // NewAnkaDB -
@@ -26,10 +25,10 @@ func NewAnkaDB(cfg Config, logic DBLogic) (*AnkaDB, error) {
 	}
 
 	anka := AnkaDB{
-		MgrDB:      dbmgr,
-		cfg:        cfg,
-		logic:      logic,
-		chanSignal: make(chan os.Signal, 1),
+		MgrDB: dbmgr,
+		cfg:   cfg,
+		logic: logic,
+		// chanSignal: make(chan os.Signal, 1),
 	}
 
 	// if cfg.AddrGRPC != "" {
