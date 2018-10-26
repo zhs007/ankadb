@@ -83,7 +83,7 @@ func (anka *AnkaDB) Start(ctx context.Context) error {
 	var grpccancel context.CancelFunc
 
 	if anka.serv != nil {
-		grpcctx, grpccancel = context.WithCancel(context.Background())
+		grpcctx, grpccancel = context.WithCancel(ctx)
 
 		go anka.serv.start(grpcctx)
 	}
@@ -92,7 +92,7 @@ func (anka *AnkaDB) Start(ctx context.Context) error {
 	var httpcancel context.CancelFunc
 
 	if anka.servHTTP != nil {
-		httpctx, httpcancel = context.WithCancel(context.Background())
+		httpctx, httpcancel = context.WithCancel(ctx)
 
 		go anka.servHTTP.start(httpctx)
 	}
