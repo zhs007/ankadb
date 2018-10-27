@@ -13,6 +13,11 @@
 ---
 ### Update
 
+##### **v0.2**
+- Refactor the error module and delete the CODE in the protobuf.
+- Support ``graphiql``
+- Replace ``chan`` with ``context``
+
 ##### **v0.1**
 - Complete basic single node.
 - Support ``graphql`` query.
