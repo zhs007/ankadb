@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
-	"net"
 	"net/http"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -13,8 +13,8 @@ import (
 // ankaHTTPServer
 type ankaHTTPServer struct {
 	anka *AnkaDB
-	lis  net.Listener
-	// chanServ chan int
+	addr string
+	serv *http.Server
 }
 
 func (s *ankaHTTPServer) procGraphQL(w http.ResponseWriter, r *http.Request) *graphql.Result {
@@ -51,7 +51,7 @@ func (s *ankaHTTPServer) procGraphQL(w http.ResponseWriter, r *http.Request) *gr
 	return result1
 }
 
-func (s *ankaHTTPServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (s *ankaHTTPServer) onGraphQL(w http.ResponseWriter, r *http.Request) {
 	if r.RequestURI == "/graphql" {
 		result := s.procGraphQL(w, r)
 
@@ -61,34 +61,47 @@ func (s *ankaHTTPServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // newHTTPServer -
 func newHTTPServer(anka *AnkaDB) (*ankaHTTPServer, error) {
-	lis, err := net.Listen("tcp", anka.cfg.AddrHTTP)
-	if err != nil {
-		return nil, ErrHTTPListen
-	}
-
-	// http.Serve(lis)
 
 	s := &ankaHTTPServer{
 		anka: anka,
-		lis:  lis,
-		// chanServ: make(chan int),
+		addr: anka.cfg.AddrHTTP,
+		serv: nil,
 	}
-
-	// pb.RegisterAnkaDBServServer(grpcServ, s)
 
 	return s, nil
 }
 
-func (s *ankaHTTPServer) start(ctx context.Context) (err error) {
-	err = http.Serve(s.lis, s)
+func (s *ankaHTTPServer) start(ctx context.Context) error {
 
-	// s.chanServ <- 0
+	mux := http.NewServeMux()
+	mux.HandleFunc("/graphql", func(w http.ResponseWriter, r *http.Request) {
+		s.onGraphQL(w, r)
+	})
 
-	return
+	fsh := http.FileServer(http.Dir("./www/graphiql"))
+	mux.Handle("/graphiql/", http.StripPrefix("/graphiql/", fsh))
+
+	server := &http.Server{
+		Addr:         s.addr,
+		ReadTimeout:  60 * time.Second,
+		WriteTimeout: 60 * time.Second,
+		Handler:      mux,
+	}
+
+	s.serv = server
+
+	err := server.ListenAndServe()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *ankaHTTPServer) stop() {
-	s.lis.Close()
+	if s.serv != nil {
+		s.serv.Close()
+	}
 
 	return
 }
