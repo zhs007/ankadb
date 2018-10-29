@@ -160,5 +160,7 @@ func (anka *AnkaDB) Stop() {
 
 // LocalQuery - local query
 func (anka *AnkaDB) LocalQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error) {
-	return anka.logic.OnQuery(ctx, request, values)
+	curctx := context.WithValue(ctx, interface{}("ankadb"), anka)
+
+	return anka.logic.OnQuery(curctx, request, values)
 }

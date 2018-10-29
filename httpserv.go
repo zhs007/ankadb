@@ -52,11 +52,11 @@ func (s *ankaHTTPServer) procGraphQL(w http.ResponseWriter, r *http.Request) *gr
 }
 
 func (s *ankaHTTPServer) onGraphQL(w http.ResponseWriter, r *http.Request) {
-	if r.RequestURI == "/graphql" {
-		result := s.procGraphQL(w, r)
+	// if r.RequestURI == "/graphql" {
+	result := s.procGraphQL(w, r)
 
-		json.NewEncoder(w).Encode(result)
-	}
+	json.NewEncoder(w).Encode(result)
+	// }
 }
 
 // newHTTPServer -
