@@ -14,7 +14,7 @@ type DBMgr interface {
 // NewDBMgr - new DBMgr
 func NewDBMgr(lstDB []DBConfig) (DBMgr, error) {
 	mgr := &dbMgr{
-		mapDB: make(map[string]dbObj),
+		mapDB: make(map[string]*dbObj),
 	}
 
 	for _, val := range lstDB {
@@ -33,7 +33,7 @@ type dbObj struct {
 }
 
 type dbMgr struct {
-	mapDB map[string]dbObj
+	mapDB map[string]*dbObj
 }
 
 // AddDB -
@@ -44,7 +44,7 @@ func (mgr *dbMgr) AddDB(cfg DBConfig) error {
 			return err
 		}
 
-		co := dbObj{
+		co := &dbObj{
 			db:          db,
 			mgrSnapshot: newSnapshotMgr(db),
 		}
