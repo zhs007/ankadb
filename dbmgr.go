@@ -29,7 +29,7 @@ func NewDBMgr(lstDB []DBConfig) (DBMgr, error) {
 
 type dbObj struct {
 	db          database.Database
-	mgrSnapshot SnapshotMgr
+	mgrSnapshot *SnapshotMgr
 }
 
 type dbMgr struct {
@@ -68,7 +68,7 @@ func (mgr *dbMgr) GetDB(name string) database.Database {
 
 func (mgr *dbMgr) GetMgrSnapshot(name string) *SnapshotMgr {
 	if db, ok := mgr.mapDB[name]; ok {
-		return &db.mgrSnapshot
+		return db.mgrSnapshot
 	}
 
 	return nil
