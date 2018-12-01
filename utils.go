@@ -3,6 +3,8 @@ package ankadb
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 
 	"github.com/goinggo/mapstructure"
 	"github.com/golang/protobuf/proto"
@@ -122,6 +124,26 @@ func MakeObjFromResult(result *graphql.Result, obj interface{}) error {
 func MakeMsgFromResult(result *graphql.Result, msg proto.Message) error {
 	if err := mapstructure.Decode(result.Data, msg); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// GetResultError - get result error
+func GetResultError(result *graphql.Result) error {
+	if result.HasErrors() {
+		var errstr string
+
+		for i, v := range result.Errors {
+			str := fmt.Sprintf("Error-%v: %v", (i + 1), v.Error())
+			if i > 0 {
+				errstr = errstr + " " + str
+			} else {
+				errstr = str
+			}
+		}
+
+		return errors.New(errstr)
 	}
 
 	return nil
