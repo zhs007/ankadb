@@ -65,6 +65,10 @@ func (db *ankaLDB) Has(key []byte) (bool, error) {
 func (db *ankaLDB) Get(key []byte) ([]byte, error) {
 	dat, err := db.db.Get(key, nil)
 	if err != nil {
+		if err == leveldb.ErrNotFound {
+			return nil, ErrNotFound
+		}
+
 		return nil, err
 	}
 
