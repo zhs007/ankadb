@@ -1,0 +1,10 @@
+addrgrpc: '0.0.0.0:7788'
+addrhttp: '0.0.0.0:7789'
+pathdbroot: './test/dat'
+listdb:
+  - name: 'test001'
+    engine: 'leveldb'
+    pathdb: 'test001'
+  - name: 'test002'
+    engine: 'leveldb'
+    pathdb: 'test002'

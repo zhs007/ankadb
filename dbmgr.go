@@ -1,6 +1,8 @@
 package ankadb
 
 import (
+	"path"
+
 	"github.com/zhs007/ankadb/database"
 )
 
@@ -39,7 +41,7 @@ type dbMgr struct {
 // AddDB -
 func (mgr *dbMgr) AddDB(cfg DBConfig) error {
 	if cfg.Engine == "leveldb" {
-		db, err := database.NewAnkaLDB(cfg.PathDB, 16, 16)
+		db, err := database.NewAnkaLDB(path.Join(cfg.PathDB, cfg.PathDB), 16, 16)
 		if err != nil {
 			return err
 		}
