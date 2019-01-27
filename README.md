@@ -29,4 +29,4 @@
 ---
 ### AnkaDB Development Log
 
-[``Come Here``](https://github.com/zhs007/ankadb/blog.md)
+[``Come Here``](https://github.com/zhs007/ankadb/blob/master/blog.md)
