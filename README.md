@@ -25,3 +25,8 @@
 - Support http service.
 - Support grpc service.
 - Support local queries.
+
+---
+### AnkaDB Development Log
+
+[``Come Here``](https://github.com/zhs007/ankadb/blob/master/blog.md)
