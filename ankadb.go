@@ -6,56 +6,57 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-// AnkaDB -
-type AnkaDB struct {
-	MgrDB    DBMgr
+// AnkaDB - AnkaDB interface
+type AnkaDB interface {
+	// Start - start service
+	Start(ctx context.Context) error
+	// Stop - stop service
+	Stop() error
+
+	// LocalQuery - local query
+	LocalQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error)
+
+	// Get - get value
+	Get(ctx context.Context, dbname string, key string) ([]byte, error)
+	// Set - set value
+	Set(ctx context.Context, dbname string, key string, value []byte) error
+
+	// GetConfig - get config
+	GetConfig() *Config
+	// GetLogic - get DBLogic
+	GetLogic() DBLogic
+	// GetDBMgr - get DBMgr
+	GetDBMgr() DBMgr
+}
+
+// ankaDB - An implementation for AnkaDB
+type ankaDB struct {
+	mgrDB    DBMgr
 	serv     *ankaServer
 	servHTTP *ankaHTTPServer
 	cfg      Config
 	logic    DBLogic
-	// chanSignal chan os.Signal
 }
 
 // NewAnkaDB -
-func NewAnkaDB(cfg Config, logic DBLogic) (*AnkaDB, error) {
+func NewAnkaDB(cfg Config, logic DBLogic) (AnkaDB, error) {
 	// return nil
 	dbmgr, err := NewDBMgr(cfg.ListDB)
 	if err != nil {
 		return nil, err
 	}
 
-	anka := AnkaDB{
-		MgrDB: dbmgr,
+	anka := &ankaDB{
+		mgrDB: dbmgr,
 		cfg:   cfg,
 		logic: logic,
-		// chanSignal: make(chan os.Signal, 1),
 	}
 
-	// if cfg.AddrGRPC != "" {
-	// 	serv, err := newServer(&anka)
-	// 	if err != nil {
-	// 		return nil, ankadberr.NewError(pb.CODE_INIT_NEW_GRPCSERV_ERR)
-	// 	}
-
-	// 	anka.serv = serv
-	// }
-
-	// if cfg.AddrHTTP != "" {
-	// 	httpserv, err := newHTTPServer(&anka)
-	// 	if err != nil {
-	// 		return nil, ankadberr.NewError(pb.CODE_INIT_NEW_HTTPSERV_ERR)
-	// 	}
-
-	// 	anka.servHTTP = httpserv
-	// }
-
-	// signal.Notify(anka.chanSignal, os.Interrupt, os.Kill, syscall.SIGSTOP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGTSTP)
-
-	return &anka, nil
+	return anka, nil
 }
 
 // Start -
-func (anka *AnkaDB) Start(ctx context.Context) error {
+func (anka *ankaDB) Start(ctx context.Context) error {
 	if anka.cfg.AddrGRPC != "" {
 		serv, err := newServer(anka)
 		if err != nil {
@@ -113,7 +114,7 @@ func (anka *AnkaDB) Start(ctx context.Context) error {
 }
 
 // Stop -
-func (anka *AnkaDB) Stop() {
+func (anka *ankaDB) Stop() error {
 	if anka.serv != nil {
 		anka.serv.stop()
 	}
@@ -121,46 +122,48 @@ func (anka *AnkaDB) Stop() {
 	if anka.servHTTP != nil {
 		anka.servHTTP.stop()
 	}
+
+	return nil
 }
 
-// func (anka *AnkaDB) waitEnd() {
-// 	if anka.servHTTP != nil {
-// 		exitnums := -2
-// 		for {
-// 			select {
-// 			case signal := <-anka.chanSignal:
-// 				fmt.Printf("get signal " + signal.String() + "\n")
-// 				anka.Stop()
-// 			case <-anka.serv.chanServ:
-// 				fmt.Printf("grpcserv exit \n")
-// 				exitnums++
-// 				if exitnums >= 0 {
-// 					return
-// 				}
-// 			case <-anka.servHTTP.chanServ:
-// 				fmt.Printf("httpserv exit \n")
-// 				exitnums++
-// 				if exitnums >= 0 {
-// 					return
-// 				}
-// 			}
-// 		}
-// 	}
-
-// 	for {
-// 		select {
-// 		case signal := <-anka.chanSignal:
-// 			fmt.Printf("get signal " + signal.String() + "\n")
-// 			anka.Stop()
-// 		case <-anka.serv.chanServ:
-// 			return
-// 		}
-// 	}
-// }
-
 // LocalQuery - local query
-func (anka *AnkaDB) LocalQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error) {
+func (anka *ankaDB) LocalQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error) {
 	curctx := context.WithValue(ctx, interface{}("ankadb"), anka)
 
 	return anka.logic.OnQuery(curctx, request, values)
+}
+
+// GetConfig - get config
+func (anka *ankaDB) GetConfig() *Config {
+	return &anka.cfg
+}
+
+// GetLogic - get DBLogic
+func (anka *ankaDB) GetLogic() DBLogic {
+	return anka.logic
+}
+
+// GetDBMgr - get DBMgr
+func (anka *ankaDB) GetDBMgr() DBMgr {
+	return anka.mgrDB
+}
+
+// Get - get value
+func (anka *ankaDB) Get(ctx context.Context, dbname string, key string) ([]byte, error) {
+	db := anka.mgrDB.GetDB(dbname)
+	if db == nil {
+		return nil, ErrNotFoundDB
+	}
+
+	return db.Get([]byte(key))
+}
+
+// Set - set value
+func (anka *ankaDB) Set(ctx context.Context, dbname string, key string, value []byte) error {
+	db := anka.mgrDB.GetDB(dbname)
+	if db == nil {
+		return ErrNotFoundDB
+	}
+
+	return db.Put([]byte(key), []byte(value))
 }

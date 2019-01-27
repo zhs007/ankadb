@@ -21,4 +21,8 @@ var (
 	ErrQuertResultDecode = errors.New("query result decode err")
 	// ErrCtxSnapshotMgr - query get snapshotMgr from err
 	ErrCtxSnapshotMgr = errors.New("query get snapshotMgr from err")
+	// ErrNotFoundDB - not found db
+	ErrNotFoundDB = errors.New("not found db")
+	// ErrNotFoundKey - not found key
+	ErrNotFoundKey = errors.New("not found key")
 )
