@@ -13,3 +13,4 @@
 .vscode
 vendor
 test/database_test
+test/database_testasync

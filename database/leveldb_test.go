@@ -3,6 +3,7 @@ package database
 import (
 	"bytes"
 	"strconv"
+	"sync"
 	"testing"
 )
 
@@ -250,4 +251,72 @@ func Test_LevelDB(t *testing.T) {
 	it.Release()
 
 	t.Logf("Test_LevelDB OK")
+}
+
+func Test_LevelDBAsync(t *testing.T) {
+	ldb, err := NewAnkaLDB("../test/database_testasync", 16, 16)
+	if err != nil {
+		t.Fatalf("Test_LevelDBAsync NewAnkaLDB %v", err)
+
+		return
+	}
+
+	if ldb == nil {
+		t.Fatalf("Test_LevelDBAsync NewAnkaLDB ldb is nil")
+
+		return
+	}
+
+	var wg sync.WaitGroup
+
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+
+		go func(index int) {
+			defer wg.Done()
+			for j := 0; j < 1000; j++ {
+				// t.Logf(strconv.Itoa(index) + ":" + strconv.Itoa(j))
+
+				err := ldb.Put([]byte("testkeyasync:"+strconv.Itoa(index)+":"+strconv.Itoa(j)),
+					[]byte(strconv.Itoa(index)+":"+strconv.Itoa(j)))
+				if err != nil {
+					t.Fatalf("Test_LevelDBAsync ankaLDB.Put err %v", err)
+
+					return
+				}
+			}
+		}(i)
+	}
+
+	wg.Wait()
+
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+
+		go func(index int) {
+			defer wg.Done()
+			for j := 0; j < 1000; j++ {
+				// t.Logf(strconv.Itoa(index) + ":" + strconv.Itoa(j))
+
+				_, err := ldb.Get([]byte("testkeyasync:" + strconv.Itoa(index) + ":" + strconv.Itoa(j)))
+				if err != nil {
+					t.Fatalf("Test_LevelDBAsync ankaLDB.Get err %v", err)
+
+					return
+				}
+
+				err = ldb.Put([]byte("testkeyasync:"+strconv.Itoa(9-index)+":"+strconv.Itoa(j)),
+					[]byte(strconv.Itoa(index)+":"+strconv.Itoa(j)))
+				if err != nil {
+					t.Fatalf("Test_LevelDBAsync ankaLDB.Put err %v", err)
+
+					return
+				}
+			}
+		}(i)
+	}
+
+	wg.Wait()
+
+	t.Logf("Test_LevelDBAsync OK")
 }
