@@ -9,9 +9,18 @@ import (
 
 // AnkaClient -
 type AnkaClient interface {
+	// Start - start a client
 	Start(addr string) error
+	// Stop - stop a client
 	Stop() error
+
+	// Query - query a GraphQL
 	Query(ctx context.Context, request string, varval string) (*pb.ReplyQuery, error)
+
+	// Get - get value with the key
+	Get(ctx context.Context, dbname string, key string) (*pb.ReplyGetValue, error)
+	// Set - set value with the key
+	Set(ctx context.Context, dbname string, key string, value []byte) (*pb.ReplySetValue, error)
 }
 
 // AnkaClient -
@@ -21,11 +30,12 @@ type ankaClient struct {
 	client pb.AnkaDBServClient
 }
 
-// NewClient -
+// NewClient - new a client
 func NewClient() AnkaClient {
 	return &ankaClient{}
 }
 
+// Start - start a client
 func (c *ankaClient) Start(addr string) error {
 	conn, err := grpc.Dial(addr, grpc.WithInsecure())
 	if err != nil {
@@ -38,6 +48,7 @@ func (c *ankaClient) Start(addr string) error {
 	return nil
 }
 
+// Stop - stop a client
 func (c *ankaClient) Stop() error {
 	c.addr = ""
 	c.conn = nil
@@ -45,6 +56,7 @@ func (c *ankaClient) Stop() error {
 	return nil
 }
 
+// Query - query a GraphQL
 func (c *ankaClient) Query(ctx context.Context, request string, varval string) (*pb.ReplyQuery, error) {
 	if c.conn == nil {
 		return nil, ErrNoConn
@@ -57,6 +69,55 @@ func (c *ankaClient) Query(ctx context.Context, request string, varval string) (
 		// Name:      name,
 		QueryData: request,
 		VarData:   varval,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if r.Err == "" {
+		return r, nil
+	}
+
+	return r, nil
+}
+
+// Get - get value with the key
+func (c *ankaClient) Get(ctx context.Context, dbname string, key string) (*pb.ReplyGetValue, error) {
+	if c.conn == nil {
+		return nil, ErrNoConn
+	}
+
+	curctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	r, err := c.client.Get(curctx, &pb.GetValue{
+		NameDB: dbname,
+		Key:    key,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if r.Err == "" {
+		return r, nil
+	}
+
+	return r, nil
+}
+
+// Set - set value with the key
+func (c *ankaClient) Set(ctx context.Context, dbname string, key string, value []byte) (*pb.ReplySetValue, error) {
+	if c.conn == nil {
+		return nil, ErrNoConn
+	}
+
+	curctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	r, err := c.client.Set(curctx, &pb.SetValue{
+		NameDB: dbname,
+		Key:    key,
+		Value:  value,
 	})
 	if err != nil {
 		return nil, err

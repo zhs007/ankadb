@@ -10,8 +10,8 @@ import (
 type AnkaDB interface {
 	// Start - start service
 	Start(ctx context.Context) error
-	// Stop - stop service
-	Stop() error
+	// // Stop - stop service
+	// Stop() error
 
 	// LocalQuery - local query
 	LocalQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error)
@@ -41,7 +41,7 @@ type ankaDB struct {
 // NewAnkaDB -
 func NewAnkaDB(cfg Config, logic DBLogic) (AnkaDB, error) {
 	// return nil
-	dbmgr, err := NewDBMgr(cfg.ListDB)
+	dbmgr, err := NewDBMgr(cfg.PathDBRoot, cfg.ListDB)
 	if err != nil {
 		return nil, err
 	}
@@ -107,14 +107,14 @@ func (anka *ankaDB) Start(ctx context.Context) error {
 			httpcancel()
 		}
 
-		anka.Stop()
+		anka.stop()
 
 		return nil
 	}
 }
 
-// Stop -
-func (anka *ankaDB) Stop() error {
+// stop -
+func (anka *ankaDB) stop() error {
 	if anka.serv != nil {
 		anka.serv.stop()
 	}

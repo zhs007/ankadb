@@ -5,6 +5,3 @@ listdb:
   - name: 'test001'
     engine: 'leveldb'
     pathdb: 'test001'
-  - name: 'test002'
-    engine: 'leveldb'
-    pathdb: 'test002'
