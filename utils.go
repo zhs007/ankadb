@@ -14,13 +14,13 @@ import (
 )
 
 // GetContextValueAnkaDB -
-func GetContextValueAnkaDB(ctx context.Context, key interface{}) *AnkaDB {
+func GetContextValueAnkaDB(ctx context.Context, key interface{}) AnkaDB {
 	val := ctx.Value(key)
 	if val == nil {
 		return nil
 	}
 
-	if db, ok := val.(*AnkaDB); ok {
+	if db, ok := val.(AnkaDB); ok {
 		return db
 	}
 
