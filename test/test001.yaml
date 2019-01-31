@@ -1,6 +1,6 @@
 addrgrpc: '0.0.0.0:7788'
 addrhttp: '0.0.0.0:7789'
-pathdbroot: './test/'
+pathdbroot: './test'
 listdb:
   - name: 'test001'
     engine: 'leveldb'

@@ -26,7 +26,7 @@ func Test_LoadConfig(t *testing.T) {
 		t.Fatalf("Test_LoadConfig invalid AddrHTTP %v", cfg.AddrHTTP)
 	}
 
-	if cfg.PathDBRoot != "./test/dat" {
+	if cfg.PathDBRoot != "./test" {
 		t.Fatalf("Test_LoadConfig invalid PathDBRoot %v", cfg.PathDBRoot)
 	}
 
