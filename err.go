@@ -25,4 +25,6 @@ var (
 	ErrNotFoundDB = errors.New("not found db")
 	// ErrNotFoundKey - not found key
 	ErrNotFoundKey = errors.New("not found key")
+	// ErrInvalidEvent - invalid event
+	ErrInvalidEvent = errors.New("invalid event")
 )

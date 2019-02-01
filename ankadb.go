@@ -36,6 +36,7 @@ type ankaDB struct {
 	servHTTP *ankaHTTPServer
 	cfg      Config
 	logic    DBLogic
+	mgrEvent *eventMgr
 }
 
 // NewAnkaDB -
@@ -51,6 +52,8 @@ func NewAnkaDB(cfg Config, logic DBLogic) (AnkaDB, error) {
 		cfg:   cfg,
 		logic: logic,
 	}
+
+	anka.mgrEvent = newEventMgr(anka)
 
 	return anka, nil
 }
@@ -96,6 +99,8 @@ func (anka *ankaDB) Start(ctx context.Context) error {
 
 		go anka.servHTTP.start(httpctx)
 	}
+
+	anka.mgrEvent.onAnkaDBEvent(ctx, EventOnStarted)
 
 	select {
 	case <-ctx.Done():
