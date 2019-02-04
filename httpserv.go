@@ -12,7 +12,7 @@ import (
 
 // ankaHTTPServer
 type ankaHTTPServer struct {
-	anka *AnkaDB
+	anka *ankaDB
 	addr string
 	serv *http.Server
 }
@@ -60,7 +60,7 @@ func (s *ankaHTTPServer) onGraphQL(w http.ResponseWriter, r *http.Request) {
 }
 
 // newHTTPServer -
-func newHTTPServer(anka *AnkaDB) (*ankaHTTPServer, error) {
+func newHTTPServer(anka *ankaDB) (*ankaHTTPServer, error) {
 
 	s := &ankaHTTPServer{
 		anka: anka,

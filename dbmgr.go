@@ -1,6 +1,8 @@
 package ankadb
 
 import (
+	"path"
+
 	"github.com/zhs007/ankadb/database"
 )
 
@@ -12,9 +14,10 @@ type DBMgr interface {
 }
 
 // NewDBMgr - new DBMgr
-func NewDBMgr(lstDB []DBConfig) (DBMgr, error) {
+func NewDBMgr(rootpath string, lstDB []DBConfig) (DBMgr, error) {
 	mgr := &dbMgr{
-		mapDB: make(map[string]*dbObj),
+		mapDB:    make(map[string]*dbObj),
+		rootPath: rootpath,
 	}
 
 	for _, val := range lstDB {
@@ -33,13 +36,14 @@ type dbObj struct {
 }
 
 type dbMgr struct {
-	mapDB map[string]*dbObj
+	mapDB    map[string]*dbObj
+	rootPath string
 }
 
 // AddDB -
 func (mgr *dbMgr) AddDB(cfg DBConfig) error {
 	if cfg.Engine == "leveldb" {
-		db, err := database.NewAnkaLDB(cfg.PathDB, 16, 16)
+		db, err := database.NewAnkaLDB(path.Join(mgr.rootPath, cfg.PathDB), 16, 16)
 		if err != nil {
 			return err
 		}

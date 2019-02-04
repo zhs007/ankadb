@@ -11,14 +11,14 @@ import (
 
 // ankaServer
 type ankaServer struct {
-	anka     *AnkaDB
+	anka     *ankaDB
 	lis      net.Listener
 	grpcServ *grpc.Server
 	// chanServ chan int
 }
 
 // newServer -
-func newServer(anka *AnkaDB) (*ankaServer, error) {
+func newServer(anka *ankaDB) (*ankaServer, error) {
 	lis, err := net.Listen("tcp", anka.cfg.AddrGRPC)
 	if err != nil {
 		return nil, ErrGRPCListen
@@ -106,4 +106,30 @@ func (s *ankaServer) QueryStream(in *pb.Query, gs pb.AnkaDBServ_QueryStreamServe
 	}
 
 	return nil
+}
+
+// Get implements ankadbpb.ankaServer
+func (s *ankaServer) Get(ctx context.Context, in *pb.GetValue) (*pb.ReplyGetValue, error) {
+	buf, err := s.anka.Get(ctx, in.NameDB, in.Key)
+	if err != nil {
+		return &pb.ReplyGetValue{
+			Err: err.Error(),
+		}, err
+	}
+
+	return &pb.ReplyGetValue{
+		Value: buf,
+	}, nil
+}
+
+// Set implements ankadbpb.ankaServer
+func (s *ankaServer) Set(ctx context.Context, in *pb.SetValue) (*pb.ReplySetValue, error) {
+	err := s.anka.Set(ctx, in.NameDB, in.Key, in.Value)
+	if err != nil {
+		return &pb.ReplySetValue{
+			Err: err.Error(),
+		}, err
+	}
+
+	return &pb.ReplySetValue{}, nil
 }

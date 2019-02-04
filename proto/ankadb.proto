@@ -13,17 +13,62 @@ message Snapshot {
     int64 createTime = 3;
 }
 
+// graphQL请求
+// graphQL query
 message Query {
     string queryData = 1;
     string varData = 2;
 }
 
+// graphQL请求的返回
+// reply of graphQL query
 message ReplyQuery {
     string err = 1;
     string result = 2;
 }
 
+// key-value的get请求
+// get value in key-value
+message GetValue {
+    string nameDB = 1;
+    string key = 2;
+}
+
+// key-value的get请求的返回
+// reply of get value in key-value
+message ReplyGetValue {
+    string err = 1;
+    bytes value = 2;
+}
+
+// key-value的set请求
+// set value in key-value
+message SetValue {
+    string nameDB = 1;
+    string key = 2;
+    bytes value = 3;
+}
+
+// key-value的set请求的返回
+// reply of set value in key-value
+message ReplySetValue {
+    string err = 1;
+}
+
 service AnkaDBServ {
+    //----------------------------------------------------------------------------
+    // graphQL
+
+    // query in graphQL
     rpc query (Query) returns (ReplyQuery) {}
+    // queryStream in graphQL
     rpc queryStream (Query) returns (stream ReplyQuery) {}
+
+    //----------------------------------------------------------------------------
+    // key-value
+
+    // get
+    rpc get (GetValue) returns (ReplyGetValue) {}
+    // set
+    rpc set (SetValue) returns (ReplySetValue) {}
 }

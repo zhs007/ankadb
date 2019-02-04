@@ -1,1 +1,0 @@
-protoc -I proto/ proto/trading.proto --go_out=plugins=grpc:proto
