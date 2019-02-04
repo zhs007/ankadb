@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/graphql-go/graphql"
+	"github.com/zhs007/ankadb/database"
 )
 
 // AnkaDB - AnkaDB interface
@@ -163,7 +164,12 @@ func (anka *ankaDB) Get(ctx context.Context, dbname string, key string) ([]byte,
 		return nil, ErrNotFoundDB
 	}
 
-	return db.Get([]byte(key))
+	val, err := db.Get([]byte(key))
+	if err == database.ErrNotFound {
+		return nil, ErrNotFoundKey
+	}
+
+	return val, err
 }
 
 // Set - set value
