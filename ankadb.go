@@ -21,6 +21,9 @@ type AnkaDB interface {
 	// Set - set value
 	Set(ctx context.Context, dbname string, key string, value []byte) error
 
+	// RegEventFunc - register a function for event
+	RegEventFunc(event string, eventfunc FuncAnkaDBEvent) error
+
 	// GetConfig - get config
 	GetConfig() *Config
 	// GetLogic - get DBLogic
@@ -171,4 +174,9 @@ func (anka *ankaDB) Set(ctx context.Context, dbname string, key string, value []
 	}
 
 	return db.Put([]byte(key), []byte(value))
+}
+
+// RegEventFunc - register a function for event
+func (anka *ankaDB) RegEventFunc(event string, eventfunc FuncAnkaDBEvent) error {
+	return anka.mgrEvent.regAnkaDBEventFunc(event, eventfunc)
 }

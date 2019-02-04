@@ -3,7 +3,6 @@ package ankadb
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -35,8 +34,14 @@ func Test_AnkaDB(t *testing.T) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
+	ctx, cancel := context.WithCancel(context.Background())
+	anka.RegEventFunc(EventOnStarted, func(ctx context.Context, anka AnkaDB) error {
+		cancel()
+
+		return nil
+	})
+	// ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	// defer cancel()
 
 	err = anka.Start(ctx)
 	if err != nil {
