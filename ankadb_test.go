@@ -10,6 +10,7 @@ import (
 
 // dblogicTest -
 type dblogicTest struct {
+	BaseDBLogic
 }
 
 func (dbl *dblogicTest) OnQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error) {

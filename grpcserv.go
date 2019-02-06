@@ -14,7 +14,6 @@ type ankaServer struct {
 	anka     *ankaDB
 	lis      net.Listener
 	grpcServ *grpc.Server
-	// chanServ chan int
 }
 
 // newServer -
@@ -31,7 +30,6 @@ func newServer(anka *ankaDB) (*ankaServer, error) {
 		anka:     anka,
 		lis:      lis,
 		grpcServ: grpcServ,
-		// chanServ: make(chan int),
 	}
 
 	pb.RegisterAnkaDBServServer(grpcServ, s)
@@ -41,8 +39,6 @@ func newServer(anka *ankaDB) (*ankaServer, error) {
 
 func (s *ankaServer) start(ctx context.Context) (err error) {
 	err = s.grpcServ.Serve(s.lis)
-
-	// s.chanServ <- 0
 
 	return
 }
@@ -132,4 +128,16 @@ func (s *ankaServer) Set(ctx context.Context, in *pb.SetValue) (*pb.ReplySetValu
 	}
 
 	return &pb.ReplySetValue{}, nil
+}
+
+// SetQueryTemplate implements ankadbpb.ankaServer
+func (s *ankaServer) SetQueryTemplate(ctx context.Context, in *pb.QueryTemplate) (*pb.ReplyQueryTemplate, error) {
+	err := s.anka.SetQueryTemplate(in.QueryTemplateName, in.QueryData)
+	if err != nil {
+		return &pb.ReplyQueryTemplate{
+			Err: err.Error(),
+		}, err
+	}
+
+	return &pb.ReplyQueryTemplate{}, nil
 }

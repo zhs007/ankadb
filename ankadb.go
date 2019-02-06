@@ -2,6 +2,7 @@ package ankadb
 
 import (
 	"context"
+	"errors"
 
 	"github.com/graphql-go/graphql"
 	"github.com/zhs007/ankadb/database"
@@ -14,8 +15,11 @@ type AnkaDB interface {
 	// // Stop - stop service
 	// Stop() error
 
-	// LocalQuery - local query
-	LocalQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error)
+	// Query - query
+	Query(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error)
+
+	// SetQueryTemplate - set query template
+	SetQueryTemplate(templateName string, request string) error
 
 	// Get - get value
 	Get(ctx context.Context, dbname string, key string) ([]byte, error)
@@ -35,12 +39,13 @@ type AnkaDB interface {
 
 // ankaDB - An implementation for AnkaDB
 type ankaDB struct {
-	mgrDB    DBMgr
-	serv     *ankaServer
-	servHTTP *ankaHTTPServer
-	cfg      Config
-	logic    DBLogic
-	mgrEvent *eventMgr
+	mgrDB        DBMgr
+	serv         *ankaServer
+	servHTTP     *ankaHTTPServer
+	cfg          Config
+	logic        DBLogic
+	mgrEvent     *eventMgr
+	mgrQueryTemp *queryTemplatesMgr
 }
 
 // NewAnkaDB -
@@ -58,6 +63,7 @@ func NewAnkaDB(cfg Config, logic DBLogic) (AnkaDB, error) {
 	}
 
 	anka.mgrEvent = newEventMgr(anka)
+	anka.mgrQueryTemp = newQueryTemplatesMgr()
 
 	return anka, nil
 }
@@ -135,11 +141,21 @@ func (anka *ankaDB) stop() error {
 	return nil
 }
 
-// LocalQuery - local query
-func (anka *ankaDB) LocalQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error) {
+// Query - query
+func (anka *ankaDB) Query(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error) {
 	curctx := context.WithValue(ctx, interface{}("ankadb"), anka)
 
 	return anka.logic.OnQuery(curctx, request, values)
+}
+
+// SetQueryTemplate - set query template
+func (anka *ankaDB) SetQueryTemplate(templateName string, request string) error {
+	err := anka.mgrQueryTemp.setQueryTemplate(anka.logic.GetScheme(), templateName, request)
+	if err != nil {
+		return errors.New(err[0].Error())
+	}
+
+	return nil
 }
 
 // GetConfig - get config

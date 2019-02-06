@@ -5,7 +5,7 @@ import (
 )
 
 // AnkaDBCoreVersion - ankadb core version
-const AnkaDBCoreVersion = "0.3.13"
+const AnkaDBCoreVersion = "0.3.19"
 
 func loadFile(filename string) ([]byte, error) {
 	file, err := os.Open(filename)
