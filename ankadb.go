@@ -35,12 +35,13 @@ type AnkaDB interface {
 
 // ankaDB - An implementation for AnkaDB
 type ankaDB struct {
-	mgrDB    DBMgr
-	serv     *ankaServer
-	servHTTP *ankaHTTPServer
-	cfg      Config
-	logic    DBLogic
-	mgrEvent *eventMgr
+	mgrDB        DBMgr
+	serv         *ankaServer
+	servHTTP     *ankaHTTPServer
+	cfg          Config
+	logic        DBLogic
+	mgrEvent     *eventMgr
+	mgrQueryTemp *queryTemplatesMgr
 }
 
 // NewAnkaDB -
@@ -58,6 +59,7 @@ func NewAnkaDB(cfg Config, logic DBLogic) (AnkaDB, error) {
 	}
 
 	anka.mgrEvent = newEventMgr(anka)
+	anka.mgrQueryTemp = newQueryTemplatesMgr()
 
 	return anka, nil
 }

@@ -18,6 +18,16 @@ message Snapshot {
 message Query {
     string queryData = 1;
     string varData = 2;
+    // 如果queryTemplateName不为空，表示会更新queryTemplate
+    // 注意，queryTemplateName要唯一
+    // 也可以只给queryTemplateName，不给queryData
+    // 如果同时给queryData和queryTemplateName，效率会低于只传queryTemplateName
+    // If the queryTemplateName is not empty, it means that the queryTemplate will be updated.
+    // Note the queryTemplateName is unique
+    // can also only give queryTemplateName, not to queryData
+    // If you give queryData and queryTemplateName at the same time, 
+    // the efficiency will be lower than only the queryTemplateName    
+    string queryTemplateName = 3;
 }
 
 // graphQL请求的返回
@@ -25,6 +35,21 @@ message Query {
 message ReplyQuery {
     string err = 1;
     string result = 2;
+}
+
+// 设置graphQL请求模板
+// set graphQL query template
+message QueryTemplate {
+    // 注意，queryTemplateName要唯一
+    // Note the queryTemplateName is unique
+    string queryTemplateName = 1;
+    string queryData = 2;
+}
+
+// 设置graphQL请求模板的返回
+// reply of QueryTemplate
+message ReplyQueryTemplate {
+    string err = 1;
 }
 
 // key-value的get请求
@@ -63,6 +88,8 @@ service AnkaDBServ {
     rpc query (Query) returns (ReplyQuery) {}
     // queryStream in graphQL
     rpc queryStream (Query) returns (stream ReplyQuery) {}
+    // query in graphQL
+    rpc setQueryTemplate (QueryTemplate) returns (ReplyQueryTemplate) {}
 
     //----------------------------------------------------------------------------
     // key-value

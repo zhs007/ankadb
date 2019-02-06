@@ -35,7 +35,7 @@ func (m *SnapshotMgr) Reset()         { *m = SnapshotMgr{} }
 func (m *SnapshotMgr) String() string { return proto.CompactTextString(m) }
 func (*SnapshotMgr) ProtoMessage()    {}
 func (*SnapshotMgr) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ankadb_bb62e1a58de4d876, []int{0}
+	return fileDescriptor_ankadb_63c80d517a611209, []int{0}
 }
 func (m *SnapshotMgr) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SnapshotMgr.Unmarshal(m, b)
@@ -82,7 +82,7 @@ func (m *Snapshot) Reset()         { *m = Snapshot{} }
 func (m *Snapshot) String() string { return proto.CompactTextString(m) }
 func (*Snapshot) ProtoMessage()    {}
 func (*Snapshot) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ankadb_bb62e1a58de4d876, []int{1}
+	return fileDescriptor_ankadb_63c80d517a611209, []int{1}
 }
 func (m *Snapshot) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Snapshot.Unmarshal(m, b)
@@ -126,8 +126,18 @@ func (m *Snapshot) GetCreateTime() int64 {
 // graphQL请求
 // graphQL query
 type Query struct {
-	QueryData            string   `protobuf:"bytes,1,opt,name=queryData,proto3" json:"queryData,omitempty"`
-	VarData              string   `protobuf:"bytes,2,opt,name=varData,proto3" json:"varData,omitempty"`
+	QueryData string `protobuf:"bytes,1,opt,name=queryData,proto3" json:"queryData,omitempty"`
+	VarData   string `protobuf:"bytes,2,opt,name=varData,proto3" json:"varData,omitempty"`
+	// 如果queryTemplateName不为空，表示会更新queryTemplate
+	// 注意，queryTemplateName要唯一
+	// 也可以只给queryTemplateName，不给queryData
+	// 如果同时给queryData和queryTemplateName，效率会低于只传queryTemplateName
+	// If the queryTemplateName is not empty, it means that the queryTemplate will be updated.
+	// Note the queryTemplateName is unique
+	// can also only give queryTemplateName, not to queryData
+	// If you give queryData and queryTemplateName at the same time,
+	// the efficiency will be lower than only the queryTemplateName
+	QueryTemplateName    string   `protobuf:"bytes,3,opt,name=queryTemplateName,proto3" json:"queryTemplateName,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -137,7 +147,7 @@ func (m *Query) Reset()         { *m = Query{} }
 func (m *Query) String() string { return proto.CompactTextString(m) }
 func (*Query) ProtoMessage()    {}
 func (*Query) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ankadb_bb62e1a58de4d876, []int{2}
+	return fileDescriptor_ankadb_63c80d517a611209, []int{2}
 }
 func (m *Query) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Query.Unmarshal(m, b)
@@ -171,6 +181,13 @@ func (m *Query) GetVarData() string {
 	return ""
 }
 
+func (m *Query) GetQueryTemplateName() string {
+	if m != nil {
+		return m.QueryTemplateName
+	}
+	return ""
+}
+
 // graphQL请求的返回
 // reply of graphQL query
 type ReplyQuery struct {
@@ -185,7 +202,7 @@ func (m *ReplyQuery) Reset()         { *m = ReplyQuery{} }
 func (m *ReplyQuery) String() string { return proto.CompactTextString(m) }
 func (*ReplyQuery) ProtoMessage()    {}
 func (*ReplyQuery) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ankadb_bb62e1a58de4d876, []int{3}
+	return fileDescriptor_ankadb_63c80d517a611209, []int{3}
 }
 func (m *ReplyQuery) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReplyQuery.Unmarshal(m, b)
@@ -219,6 +236,96 @@ func (m *ReplyQuery) GetResult() string {
 	return ""
 }
 
+// 设置graphQL请求模板
+// set graphQL query template
+type QueryTemplate struct {
+	// 注意，queryTemplateName要唯一
+	// Note the queryTemplateName is unique
+	QueryTemplateName    string   `protobuf:"bytes,1,opt,name=queryTemplateName,proto3" json:"queryTemplateName,omitempty"`
+	QueryData            string   `protobuf:"bytes,2,opt,name=queryData,proto3" json:"queryData,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *QueryTemplate) Reset()         { *m = QueryTemplate{} }
+func (m *QueryTemplate) String() string { return proto.CompactTextString(m) }
+func (*QueryTemplate) ProtoMessage()    {}
+func (*QueryTemplate) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ankadb_63c80d517a611209, []int{4}
+}
+func (m *QueryTemplate) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_QueryTemplate.Unmarshal(m, b)
+}
+func (m *QueryTemplate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_QueryTemplate.Marshal(b, m, deterministic)
+}
+func (dst *QueryTemplate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryTemplate.Merge(dst, src)
+}
+func (m *QueryTemplate) XXX_Size() int {
+	return xxx_messageInfo_QueryTemplate.Size(m)
+}
+func (m *QueryTemplate) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryTemplate.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryTemplate proto.InternalMessageInfo
+
+func (m *QueryTemplate) GetQueryTemplateName() string {
+	if m != nil {
+		return m.QueryTemplateName
+	}
+	return ""
+}
+
+func (m *QueryTemplate) GetQueryData() string {
+	if m != nil {
+		return m.QueryData
+	}
+	return ""
+}
+
+// 设置graphQL请求模板的返回
+// reply of QueryTemplate
+type ReplyQueryTemplate struct {
+	Err                  string   `protobuf:"bytes,1,opt,name=err,proto3" json:"err,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ReplyQueryTemplate) Reset()         { *m = ReplyQueryTemplate{} }
+func (m *ReplyQueryTemplate) String() string { return proto.CompactTextString(m) }
+func (*ReplyQueryTemplate) ProtoMessage()    {}
+func (*ReplyQueryTemplate) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ankadb_63c80d517a611209, []int{5}
+}
+func (m *ReplyQueryTemplate) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ReplyQueryTemplate.Unmarshal(m, b)
+}
+func (m *ReplyQueryTemplate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ReplyQueryTemplate.Marshal(b, m, deterministic)
+}
+func (dst *ReplyQueryTemplate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReplyQueryTemplate.Merge(dst, src)
+}
+func (m *ReplyQueryTemplate) XXX_Size() int {
+	return xxx_messageInfo_ReplyQueryTemplate.Size(m)
+}
+func (m *ReplyQueryTemplate) XXX_DiscardUnknown() {
+	xxx_messageInfo_ReplyQueryTemplate.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ReplyQueryTemplate proto.InternalMessageInfo
+
+func (m *ReplyQueryTemplate) GetErr() string {
+	if m != nil {
+		return m.Err
+	}
+	return ""
+}
+
 // key-value的get请求
 // get value in key-value
 type GetValue struct {
@@ -233,7 +340,7 @@ func (m *GetValue) Reset()         { *m = GetValue{} }
 func (m *GetValue) String() string { return proto.CompactTextString(m) }
 func (*GetValue) ProtoMessage()    {}
 func (*GetValue) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ankadb_bb62e1a58de4d876, []int{4}
+	return fileDescriptor_ankadb_63c80d517a611209, []int{6}
 }
 func (m *GetValue) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetValue.Unmarshal(m, b)
@@ -281,7 +388,7 @@ func (m *ReplyGetValue) Reset()         { *m = ReplyGetValue{} }
 func (m *ReplyGetValue) String() string { return proto.CompactTextString(m) }
 func (*ReplyGetValue) ProtoMessage()    {}
 func (*ReplyGetValue) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ankadb_bb62e1a58de4d876, []int{5}
+	return fileDescriptor_ankadb_63c80d517a611209, []int{7}
 }
 func (m *ReplyGetValue) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReplyGetValue.Unmarshal(m, b)
@@ -330,7 +437,7 @@ func (m *SetValue) Reset()         { *m = SetValue{} }
 func (m *SetValue) String() string { return proto.CompactTextString(m) }
 func (*SetValue) ProtoMessage()    {}
 func (*SetValue) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ankadb_bb62e1a58de4d876, []int{6}
+	return fileDescriptor_ankadb_63c80d517a611209, []int{8}
 }
 func (m *SetValue) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SetValue.Unmarshal(m, b)
@@ -384,7 +491,7 @@ func (m *ReplySetValue) Reset()         { *m = ReplySetValue{} }
 func (m *ReplySetValue) String() string { return proto.CompactTextString(m) }
 func (*ReplySetValue) ProtoMessage()    {}
 func (*ReplySetValue) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ankadb_bb62e1a58de4d876, []int{7}
+	return fileDescriptor_ankadb_63c80d517a611209, []int{9}
 }
 func (m *ReplySetValue) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReplySetValue.Unmarshal(m, b)
@@ -416,6 +523,8 @@ func init() {
 	proto.RegisterType((*Snapshot)(nil), "ankadbpb.Snapshot")
 	proto.RegisterType((*Query)(nil), "ankadbpb.Query")
 	proto.RegisterType((*ReplyQuery)(nil), "ankadbpb.ReplyQuery")
+	proto.RegisterType((*QueryTemplate)(nil), "ankadbpb.QueryTemplate")
+	proto.RegisterType((*ReplyQueryTemplate)(nil), "ankadbpb.ReplyQueryTemplate")
 	proto.RegisterType((*GetValue)(nil), "ankadbpb.GetValue")
 	proto.RegisterType((*ReplyGetValue)(nil), "ankadbpb.ReplyGetValue")
 	proto.RegisterType((*SetValue)(nil), "ankadbpb.SetValue")
@@ -438,6 +547,8 @@ type AnkaDBServClient interface {
 	Query(ctx context.Context, in *Query, opts ...grpc.CallOption) (*ReplyQuery, error)
 	// queryStream in graphQL
 	QueryStream(ctx context.Context, in *Query, opts ...grpc.CallOption) (AnkaDBServ_QueryStreamClient, error)
+	// query in graphQL
+	SetQueryTemplate(ctx context.Context, in *QueryTemplate, opts ...grpc.CallOption) (*ReplyQueryTemplate, error)
 	// get
 	Get(ctx context.Context, in *GetValue, opts ...grpc.CallOption) (*ReplyGetValue, error)
 	// set
@@ -493,6 +604,15 @@ func (x *ankaDBServQueryStreamClient) Recv() (*ReplyQuery, error) {
 	return m, nil
 }
 
+func (c *ankaDBServClient) SetQueryTemplate(ctx context.Context, in *QueryTemplate, opts ...grpc.CallOption) (*ReplyQueryTemplate, error) {
+	out := new(ReplyQueryTemplate)
+	err := c.cc.Invoke(ctx, "/ankadbpb.AnkaDBServ/setQueryTemplate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *ankaDBServClient) Get(ctx context.Context, in *GetValue, opts ...grpc.CallOption) (*ReplyGetValue, error) {
 	out := new(ReplyGetValue)
 	err := c.cc.Invoke(ctx, "/ankadbpb.AnkaDBServ/get", in, out, opts...)
@@ -517,6 +637,8 @@ type AnkaDBServServer interface {
 	Query(context.Context, *Query) (*ReplyQuery, error)
 	// queryStream in graphQL
 	QueryStream(*Query, AnkaDBServ_QueryStreamServer) error
+	// query in graphQL
+	SetQueryTemplate(context.Context, *QueryTemplate) (*ReplyQueryTemplate, error)
 	// get
 	Get(context.Context, *GetValue) (*ReplyGetValue, error)
 	// set
@@ -566,6 +688,24 @@ func (x *ankaDBServQueryStreamServer) Send(m *ReplyQuery) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _AnkaDBServ_SetQueryTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryTemplate)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnkaDBServServer).SetQueryTemplate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ankadbpb.AnkaDBServ/SetQueryTemplate",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnkaDBServServer).SetQueryTemplate(ctx, req.(*QueryTemplate))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AnkaDBServ_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetValue)
 	if err := dec(in); err != nil {
@@ -611,6 +751,10 @@ var _AnkaDBServ_serviceDesc = grpc.ServiceDesc{
 			Handler:    _AnkaDBServ_Query_Handler,
 		},
 		{
+			MethodName: "setQueryTemplate",
+			Handler:    _AnkaDBServ_SetQueryTemplate_Handler,
+		},
+		{
 			MethodName: "get",
 			Handler:    _AnkaDBServ_Get_Handler,
 		},
@@ -629,31 +773,35 @@ var _AnkaDBServ_serviceDesc = grpc.ServiceDesc{
 	Metadata: "ankadb.proto",
 }
 
-func init() { proto.RegisterFile("ankadb.proto", fileDescriptor_ankadb_bb62e1a58de4d876) }
+func init() { proto.RegisterFile("ankadb.proto", fileDescriptor_ankadb_63c80d517a611209) }
 
-var fileDescriptor_ankadb_bb62e1a58de4d876 = []byte{
-	// 361 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x93, 0xc1, 0x4b, 0xeb, 0x40,
-	0x10, 0xc6, 0x9b, 0xe6, 0xb5, 0x2f, 0x9d, 0xb6, 0xbc, 0xc7, 0x50, 0xde, 0x0b, 0x45, 0xa4, 0x2e,
-	0x1e, 0x7a, 0x2a, 0x45, 0x8b, 0x7a, 0x13, 0x4b, 0x40, 0x14, 0x3c, 0x34, 0x11, 0x8f, 0xc2, 0x56,
-	0x87, 0x2a, 0x69, 0xd2, 0xb8, 0xd9, 0x16, 0xf3, 0xff, 0xfa, 0x87, 0xc8, 0x6e, 0x36, 0x4d, 0x5b,
-	0x29, 0xe8, 0x6d, 0xbe, 0x6f, 0xf6, 0xf7, 0xcd, 0x30, 0x24, 0xd0, 0xe2, 0x71, 0xc8, 0x9f, 0xa7,
-	0x83, 0x44, 0x2c, 0xe4, 0x02, 0x9d, 0x5c, 0x25, 0x53, 0x36, 0x81, 0x66, 0x10, 0xf3, 0x24, 0x7d,
-	0x59, 0xc8, 0xbb, 0x99, 0xc0, 0x63, 0x68, 0x47, 0xfc, 0xbd, 0x70, 0x6e, 0x3c, 0xd7, 0xea, 0x59,
-	0x7d, 0xdb, 0xdf, 0x36, 0xf1, 0x00, 0x1a, 0xa9, 0x51, 0xa9, 0x5b, 0xed, 0xd9, 0x7d, 0xdb, 0x2f,
-	0x0d, 0xf6, 0x08, 0x4e, 0xf1, 0x16, 0x0f, 0x01, 0xd2, 0xdd, 0xb0, 0x0d, 0x07, 0x11, 0x7e, 0x85,
-	0x94, 0xe5, 0x21, 0x0d, 0x5f, 0xd7, 0x8a, 0x79, 0x12, 0xc4, 0x25, 0xdd, 0xbf, 0x46, 0xe4, 0xda,
-	0x39, 0x53, 0x3a, 0xec, 0x12, 0x6a, 0x93, 0x25, 0x89, 0x4c, 0xad, 0xf1, 0xa6, 0x0a, 0x8f, 0x4b,
-	0xae, 0xb3, 0x1b, 0x7e, 0x69, 0xa0, 0x0b, 0xbf, 0x57, 0x5c, 0xe8, 0x5e, 0x55, 0xf7, 0x0a, 0xc9,
-	0xce, 0x00, 0x7c, 0x4a, 0xe6, 0x59, 0x9e, 0xf2, 0x17, 0x6c, 0x12, 0xc2, 0xf0, 0xaa, 0xc4, 0x7f,
-	0x50, 0x17, 0x94, 0x2e, 0xe7, 0xd2, 0x80, 0x46, 0xb1, 0x11, 0x38, 0xd7, 0x24, 0x1f, 0xf8, 0x7c,
-	0x49, 0xea, 0x4d, 0xcc, 0x23, 0xf2, 0xc6, 0x06, 0x34, 0x4a, 0xa5, 0x85, 0x94, 0x19, 0x50, 0x95,
-	0xec, 0x1c, 0xda, 0x7a, 0xda, 0x1a, 0xfd, 0x3a, 0xb0, 0x03, 0xb5, 0x95, 0x6a, 0x69, 0xac, 0xe5,
-	0xe7, 0x82, 0xdd, 0x82, 0x13, 0xfc, 0x78, 0x5c, 0x99, 0x65, 0x6f, 0x66, 0x1d, 0x99, 0x25, 0x82,
-	0xbd, 0x4b, 0x9c, 0x7c, 0x58, 0x00, 0x57, 0x71, 0xc8, 0xbd, 0x71, 0x40, 0x62, 0x85, 0x43, 0xa8,
-	0xe9, 0x5b, 0xe2, 0x9f, 0x41, 0xf1, 0xb1, 0x0c, 0xf4, 0xc1, 0xba, 0x9d, 0xd2, 0x28, 0xcf, 0xc8,
-	0x2a, 0x78, 0x01, 0x4d, 0x4d, 0x04, 0x52, 0x10, 0x8f, 0xbe, 0xcd, 0x0d, 0x2d, 0x1c, 0x81, 0x3d,
-	0x23, 0x89, 0x58, 0x3e, 0x28, 0x8e, 0xd5, 0xfd, 0xbf, 0x03, 0x15, 0x0d, 0x56, 0x51, 0x54, 0xba,
-	0x4d, 0x05, 0xfb, 0xa8, 0x60, 0x4d, 0x4d, 0xeb, 0xfa, 0x0f, 0x38, 0xfd, 0x0c, 0x00, 0x00, 0xff,
-	0xff, 0xa1, 0x15, 0x3d, 0x5c, 0x11, 0x03, 0x00, 0x00,
+var fileDescriptor_ankadb_63c80d517a611209 = []byte{
+	// 426 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x54, 0xef, 0x6b, 0xd4, 0x40,
+	0x10, 0x6d, 0x12, 0xaf, 0x26, 0xd3, 0x1e, 0xd6, 0xa1, 0xd8, 0x70, 0x14, 0xa9, 0x8b, 0x48, 0x3f,
+	0xc8, 0x51, 0xb4, 0xa8, 0x5f, 0x2d, 0x01, 0x51, 0x51, 0xb8, 0xa4, 0xf8, 0x45, 0x10, 0xf6, 0x74,
+	0xa8, 0x92, 0x1f, 0x17, 0x37, 0x7b, 0x87, 0xf9, 0xb3, 0xfc, 0x0f, 0x65, 0x37, 0xbb, 0xb7, 0x97,
+	0x5c, 0x0f, 0xec, 0xb7, 0x99, 0xf7, 0xe6, 0xbd, 0x37, 0x3b, 0x84, 0xc0, 0x21, 0xaf, 0x72, 0xfe,
+	0x63, 0x3e, 0xad, 0xc5, 0x42, 0x2e, 0x30, 0xec, 0xba, 0x7a, 0xce, 0x66, 0x70, 0x90, 0x55, 0xbc,
+	0x6e, 0x7e, 0x2e, 0xe4, 0xa7, 0x1b, 0x81, 0x4f, 0x61, 0x5c, 0xf2, 0x3f, 0x16, 0x79, 0x9f, 0xc4,
+	0xde, 0x99, 0x77, 0x1e, 0xa4, 0x7d, 0x10, 0x4f, 0x21, 0x6a, 0x4c, 0xd7, 0xc4, 0xfe, 0x59, 0x70,
+	0x1e, 0xa4, 0x0e, 0x60, 0xdf, 0x20, 0xb4, 0xb3, 0xf8, 0x18, 0xa0, 0x19, 0x9a, 0x6d, 0x20, 0x88,
+	0x70, 0x2f, 0xa7, 0xb6, 0x33, 0x89, 0x52, 0x5d, 0x2b, 0xcd, 0x77, 0x41, 0x5c, 0xd2, 0xf5, 0xaf,
+	0x92, 0xe2, 0xa0, 0xd3, 0x38, 0x84, 0x95, 0x30, 0x9a, 0x2d, 0x49, 0xb4, 0x6a, 0x8d, 0xdf, 0xaa,
+	0x48, 0xb8, 0xe4, 0xda, 0x3b, 0x4a, 0x1d, 0x80, 0x31, 0xdc, 0x5f, 0x71, 0xa1, 0x39, 0x5f, 0x73,
+	0xb6, 0xc5, 0xe7, 0xf0, 0x50, 0x8f, 0x5d, 0x53, 0x59, 0x17, 0x5c, 0xd2, 0x67, 0x6e, 0x72, 0xa2,
+	0x74, 0x9b, 0x60, 0xaf, 0x00, 0x52, 0xaa, 0x8b, 0xb6, 0xcb, 0x3c, 0x82, 0x80, 0x84, 0x30, 0x69,
+	0xaa, 0xc4, 0x47, 0xb0, 0x2f, 0xa8, 0x59, 0x16, 0xd2, 0xc4, 0x98, 0x8e, 0x7d, 0x85, 0xf1, 0x6c,
+	0xd3, 0xec, 0xf6, 0x58, 0x6f, 0x47, 0x6c, 0xff, 0x71, 0xfe, 0xe0, 0x71, 0xec, 0x19, 0xa0, 0x5b,
+	0x6a, 0x9d, 0xb0, 0xb5, 0x1c, 0xbb, 0x84, 0xf0, 0x1d, 0xc9, 0x2f, 0xbc, 0x58, 0x92, 0x5a, 0xb4,
+	0xe2, 0x25, 0x25, 0x57, 0x66, 0xc0, 0x74, 0x4a, 0x95, 0x53, 0x6b, 0x32, 0x54, 0xc9, 0x5e, 0xc3,
+	0x58, 0xbb, 0xaf, 0xa5, 0xdb, 0xaf, 0x3e, 0x86, 0xd1, 0x4a, 0x51, 0x5a, 0x76, 0x98, 0x76, 0x0d,
+	0xfb, 0x00, 0x61, 0x76, 0xe7, 0x38, 0xe7, 0x15, 0x6c, 0x7a, 0x3d, 0x31, 0x4b, 0x64, 0x3b, 0x97,
+	0x78, 0xf1, 0xd7, 0x07, 0x78, 0x5b, 0xe5, 0x3c, 0xb9, 0xca, 0x48, 0xac, 0xf0, 0x02, 0x46, 0xfa,
+	0x42, 0xf8, 0x60, 0x6a, 0xbf, 0xef, 0xa9, 0x3e, 0xd0, 0xe4, 0xd8, 0x01, 0xee, 0x6c, 0x6c, 0x0f,
+	0xdf, 0xc0, 0x81, 0x56, 0x64, 0x52, 0x10, 0x2f, 0xff, 0x5b, 0x77, 0xe1, 0xe1, 0x47, 0x38, 0x6a,
+	0x48, 0xf6, 0xcf, 0x7f, 0x32, 0x90, 0x5b, 0x62, 0x72, 0x7a, 0x9b, 0x8d, 0x65, 0xd9, 0x1e, 0x5e,
+	0x42, 0x70, 0x43, 0x12, 0xd1, 0x8d, 0xd9, 0xcb, 0x4f, 0x4e, 0x06, 0x52, 0x4b, 0x74, 0xaa, 0xa6,
+	0xaf, 0xca, 0x76, 0xa9, 0xb2, 0xb5, 0x6a, 0xbe, 0xaf, 0xff, 0x00, 0x2f, 0xff, 0x05, 0x00, 0x00,
+	0xff, 0xff, 0x30, 0x3f, 0xdb, 0xb2, 0x11, 0x04, 0x00, 0x00,
 }

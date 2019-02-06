@@ -1,5 +1,13 @@
 # AnkaDB Development Log
 
+### 2019-02-06
+
+今天开始优化``GraphQL``部分。  
+增加了``QueryTemplate``，减少了后期``Query``的字符串解析。  
+
+Start optimizing the ``GraphQL`` section today.  
+Added ``QueryTemplate`` to reduce string parsing.  
+
 ### 2019-01-27
 
 今天开始增加``AnkaDB``的一组更底层的``key-value``接口。  
