@@ -2,6 +2,7 @@ package ankadb
 
 import (
 	"context"
+	"errors"
 
 	"github.com/graphql-go/graphql"
 	"github.com/zhs007/ankadb/database"
@@ -16,6 +17,9 @@ type AnkaDB interface {
 
 	// Query - query
 	Query(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error)
+
+	// SetQueryTemplate - set query template
+	SetQueryTemplate(templateName string, request string) error
 
 	// Get - get value
 	Get(ctx context.Context, dbname string, key string) ([]byte, error)
@@ -142,6 +146,16 @@ func (anka *ankaDB) Query(ctx context.Context, request string, values map[string
 	curctx := context.WithValue(ctx, interface{}("ankadb"), anka)
 
 	return anka.logic.OnQuery(curctx, request, values)
+}
+
+// SetQueryTemplate - set query template
+func (anka *ankaDB) SetQueryTemplate(templateName string, request string) error {
+	err := anka.mgrQueryTemp.setQueryTemplate(anka.logic.GetScheme(), templateName, request)
+	if err != nil {
+		return errors.New(err[0].Error())
+	}
+
+	return nil
 }
 
 // GetConfig - get config

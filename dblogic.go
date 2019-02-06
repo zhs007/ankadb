@@ -12,13 +12,16 @@ type FuncOnQueryStream func(*pb.ReplyQuery)
 
 // DBLogic -
 type DBLogic interface {
+	// GetScheme - get GraphQL scheme
+	GetScheme() *graphql.Schema
+
 	OnQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error)
 	OnQueryStream(ctx context.Context, request string, values map[string]interface{}, funcOnQueryStream FuncOnQueryStream) error
 }
 
 // BaseDBLogic - base DBLogic
 type BaseDBLogic struct {
-	schema graphql.Schema
+	schema *graphql.Schema
 }
 
 // NewBaseDBLogic - new BaseDBLogic
@@ -29,6 +32,11 @@ func NewBaseDBLogic(cfg graphql.SchemaConfig) (*BaseDBLogic, error) {
 	}
 
 	return &BaseDBLogic{
-		schema: schema,
+		schema: &schema,
 	}, nil
+}
+
+// GetScheme - get GraphQL scheme
+func (logic *BaseDBLogic) GetScheme() *graphql.Schema {
+	return logic.schema
 }

@@ -41,7 +41,7 @@ func (mgr *queryTemplatesMgr) getQueryTemplate(tname string) *queryTemplate {
 }
 
 // setQueryTemplate - set queryTemplate
-func (mgr *queryTemplatesMgr) setQueryTemplate(schema graphql.Schema, tname string, query string) []gqlerrors.FormattedError {
+func (mgr *queryTemplatesMgr) setQueryTemplate(schema *graphql.Schema, tname string, query string) []gqlerrors.FormattedError {
 	v, isok := mgr.mapQT.Load(tname)
 	if isok {
 		qt, isok := v.(queryTemplate)

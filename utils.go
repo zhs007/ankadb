@@ -153,7 +153,7 @@ func GetResultError(result *graphql.Result) error {
 }
 
 // ParseQuery - parse graphql query
-func ParseQuery(schema graphql.Schema, query string, name string) (*ast.Document, []gqlerrors.FormattedError) {
+func ParseQuery(schema *graphql.Schema, query string, name string) (*ast.Document, []gqlerrors.FormattedError) {
 	source := source.NewSource(&source.Source{
 		Body: []byte(query),
 		Name: name,
@@ -163,7 +163,7 @@ func ParseQuery(schema graphql.Schema, query string, name string) (*ast.Document
 		return nil, gqlerrors.FormatErrors(err)
 	}
 
-	validationResult := graphql.ValidateDocument(&schema, AST, nil)
+	validationResult := graphql.ValidateDocument(schema, AST, nil)
 	if validationResult.IsValid {
 		return AST, nil
 	}
