@@ -15,3 +15,20 @@ type DBLogic interface {
 	OnQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error)
 	OnQueryStream(ctx context.Context, request string, values map[string]interface{}, funcOnQueryStream FuncOnQueryStream) error
 }
+
+// BaseDBLogic - base DBLogic
+type BaseDBLogic struct {
+	schema graphql.Schema
+}
+
+// NewBaseDBLogic - new BaseDBLogic
+func NewBaseDBLogic(cfg graphql.SchemaConfig) (*BaseDBLogic, error) {
+	schema, err := graphql.NewSchema(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &BaseDBLogic{
+		schema: schema,
+	}, nil
+}

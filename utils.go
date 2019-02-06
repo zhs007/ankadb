@@ -10,6 +10,9 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/graphql/gqlerrors"
+	"github.com/graphql-go/graphql/language/ast"
+	"github.com/graphql-go/graphql/language/parser"
+	"github.com/graphql-go/graphql/language/source"
 	"github.com/zhs007/ankadb/database"
 )
 
@@ -147,4 +150,23 @@ func GetResultError(result *graphql.Result) error {
 	}
 
 	return nil
+}
+
+// ParseQuery - parse graphql query
+func ParseQuery(schema graphql.Schema, query string, name string) (*ast.Document, []gqlerrors.FormattedError) {
+	source := source.NewSource(&source.Source{
+		Body: []byte(query),
+		Name: name,
+	})
+	AST, err := parser.Parse(parser.ParseParams{Source: source})
+	if err != nil {
+		return nil, gqlerrors.FormatErrors(err)
+	}
+
+	validationResult := graphql.ValidateDocument(&schema, AST, nil)
+	if validationResult.IsValid {
+		return AST, nil
+	}
+
+	return nil, validationResult.Errors
 }
