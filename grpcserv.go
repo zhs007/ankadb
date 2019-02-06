@@ -129,3 +129,15 @@ func (s *ankaServer) Set(ctx context.Context, in *pb.SetValue) (*pb.ReplySetValu
 
 	return &pb.ReplySetValue{}, nil
 }
+
+// SetQueryTemplate implements ankadbpb.ankaServer
+func (s *ankaServer) SetQueryTemplate(ctx context.Context, in *pb.QueryTemplate) (*pb.ReplyQueryTemplate, error) {
+	// err := s.anka.Set(ctx, in.NameDB, in.Key, in.Value)
+	// if err != nil {
+	// 	return &pb.ReplySetValue{
+	// 		Err: err.Error(),
+	// 	}, err
+	// }
+
+	return &pb.ReplyQueryTemplate{}, nil
+}

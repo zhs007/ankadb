@@ -14,8 +14,8 @@ type AnkaDB interface {
 	// // Stop - stop service
 	// Stop() error
 
-	// LocalQuery - local query
-	LocalQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error)
+	// Query - query
+	Query(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error)
 
 	// Get - get value
 	Get(ctx context.Context, dbname string, key string) ([]byte, error)
@@ -137,8 +137,8 @@ func (anka *ankaDB) stop() error {
 	return nil
 }
 
-// LocalQuery - local query
-func (anka *ankaDB) LocalQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error) {
+// Query - query
+func (anka *ankaDB) Query(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error) {
 	curctx := context.WithValue(ctx, interface{}("ankadb"), anka)
 
 	return anka.logic.OnQuery(curctx, request, values)
