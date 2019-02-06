@@ -15,3 +15,5 @@ vendor
 test/database_test
 test/database_testasync
 test/test001
+test/test001-001
+test/test001-002
