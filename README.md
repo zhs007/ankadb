@@ -13,8 +13,11 @@
 ---
 ### Update
 
+##### **v0.6**
+- Support ``raft`` protocol.
+
 ##### **v0.5**
-- Support ``RocksDB``
+- Support ``RocksDB``.
 
 ##### **v0.3**
 - Refactor AnkaDB & DBLogic.
