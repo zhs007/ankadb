@@ -10,7 +10,7 @@
 
 [``TradingDB``](https://github.com/zhs007/tradingdb) is an implementation of ``AnkaDB``.
 
-Key-Value sample is [here](https://github.com/zhs007/ankadb/blob/master/ankadb_test.go).
+Key-Value sample is [here](https://github.com/zhs007/ankadb/blob/master/ankadb_test.go).  
 GraphQL sample is [here](https://github.com/zhs007/ankadb/blob/master/graphql_test.go).
 
 ---
