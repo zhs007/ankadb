@@ -35,6 +35,9 @@ type AnkaDB interface {
 	GetLogic() DBLogic
 	// GetDBMgr - get DBMgr
 	GetDBMgr() DBMgr
+
+	// GetDatabase
+	GetDatabase(dbname string) database.Database
 }
 
 // ankaDB - An implementation for AnkaDB
@@ -201,4 +204,9 @@ func (anka *ankaDB) Set(ctx context.Context, dbname string, key string, value []
 // RegEventFunc - register a function for event
 func (anka *ankaDB) RegEventFunc(event string, eventfunc FuncAnkaDBEvent) error {
 	return anka.mgrEvent.regAnkaDBEventFunc(event, eventfunc)
+}
+
+// GetDatabase
+func (anka *ankaDB) GetDatabase(dbname string) database.Database {
+	return anka.mgrDB.GetDB(dbname)
 }

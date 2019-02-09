@@ -1,0 +1,32 @@
+type User {
+    nickName: String!
+    userID: ID!
+    userName: ID!
+}
+
+type Message {
+    chatID: ID!
+    from: User
+    to: User
+    text: String
+    timeStamp: Timestamp
+}
+
+type UserList {
+	users: [User]!
+}
+
+type Query {
+    msg(chatID: ID!): Message!
+
+    user(userID: ID!): User!
+    userWithUserName(userName: ID!): User!
+
+    users(): UserList!
+}
+
+type Mutation {
+    updMsg(msg: Message!): Message!
+
+    updUser(user: User!): User!
+}

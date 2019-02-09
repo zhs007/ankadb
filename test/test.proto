@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package testpb;
+
+// User - chat user info
+message User {
+    // nickName - User's nickname
+    string nickName = 1;
+    // userID - User's unique identifier
+    string userID = 2;
+    // userName - Username
+    string userName = 3;
+}
+
+// Message - message
+message Message {
+    // chatID - The globally unique identifier of the message, in a format similar to userid:msgid
+    string chatID = 1;
+    // from - Message user
+    User from = 2;
+    // to - User receiving the message
+    User to = 3;
+    // text - Message text content
+    string text = 4;
+    // timeStamp - Time of sending a message
+    int64 timeStamp = 5;
+}
+
+// UserList - user list
+message UserList {
+    // users - user list
+    repeated User users = 1;
+}
