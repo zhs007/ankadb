@@ -13,6 +13,16 @@
 ---
 ### Update
 
+##### **v0.5**
+- Support ``RocksDB``
+
+##### **v0.3**
+- Refactor AnkaDB & DBLogic.
+- Add Key-Value interface.
+- Add GraphQL sample.
+- Add test.
+- Add Development Log.
+
 ##### **v0.2**
 - Refactor the error module and delete the CODE in the protobuf.
 - Support ``graphiql``
