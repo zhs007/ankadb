@@ -36,7 +36,7 @@ type AnkaDB interface {
 	// GetDBMgr - get DBMgr
 	GetDBMgr() DBMgr
 
-	// GetDatabase
+	// GetDatabase - get databse with dbname
 	GetDatabase(dbname string) database.Database
 }
 
@@ -206,7 +206,7 @@ func (anka *ankaDB) RegEventFunc(event string, eventfunc FuncAnkaDBEvent) error 
 	return anka.mgrEvent.regAnkaDBEventFunc(event, eventfunc)
 }
 
-// GetDatabase
+// GetDatabase - get databse with dbname
 func (anka *ankaDB) GetDatabase(dbname string) database.Database {
 	return anka.mgrDB.GetDB(dbname)
 }

@@ -9,8 +9,6 @@ import (
 const prefixKeyMessage = "msg:"
 const prefixKeyUser = "user:"
 const prefixKeyUserName = "uname:"
-const prefixKeyUserScript = "userscript:"
-const prefixKeyUserFileTemplate = "filetemplate:"
 
 func makeMessageKey(chatID string) string {
 	return prefixKeyMessage + chatID
@@ -125,7 +123,7 @@ var typeUserList = graphql.NewObject(
 	},
 )
 
-// typeUserList - query
+// typeQuery - Query
 //		you can see dblogic_test.graphql
 var typeQuery = graphql.NewObject(
 	graphql.ObjectConfig{
@@ -168,8 +166,6 @@ var typeQuery = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					// jarvisbase.Debug("query user")
-
 					anka := GetContextValueAnkaDB(params.Context, interface{}("ankadb"))
 					if anka == nil {
 						return nil, ErrCtxAnkaDB
@@ -195,8 +191,6 @@ var typeQuery = graphql.NewObject(
 				Type: typeUserList,
 				Args: graphql.FieldConfigArgument{},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					// jarvisbase.Debug("query users")
-
 					anka := GetContextValueAnkaDB(params.Context, interface{}("ankadb"))
 					if anka == nil {
 						return nil, ErrCtxAnkaDB
@@ -207,67 +201,7 @@ var typeQuery = graphql.NewObject(
 						return nil, ErrCtxCurDB
 					}
 
-					// mgrSnapshot := anka.MgrDB.GetMgrSnapshot("chatbotdb")
-					// if mgrSnapshot == nil {
-					// 	return nil, ErrCtxSnapshotMgr
-					// }
-
-					// curit := curdb.NewIteratorWithPrefix([]byte(prefixKeyUser))
-					// // jarvisbase.Debug("curdb.NewIteratorWithPrefix")
-					// for curit.Next() {
-					// 	key := curit.Key()
-					// 	jarvisbase.Debug("curdb.NewIteratorWithPrefix", zap.String("key", string(key)))
-					// }
-					// curit.Release()
-					// err := curit.Error()
-					// if err != nil {
-					// 	jarvisbase.Debug("curdb.NewIteratorWithPrefix", zap.Error(err))
-
-					// 	return nil, err
-					// }
-
-					// snapshotID := params.Args["snapshotID"].(int64)
-					// beginIndex := params.Args["beginIndex"].(int)
-					// nums := params.Args["nums"].(int)
-					// if beginIndex < 0 || nums <= 0 {
-					// 	return nil, ErrQuertParams
-					// }
-
 					lstUser := &testpb.UserList{}
-					// var pSnapshot *ankadbpb.Snapshot
-
-					// if snapshotID > 0 {
-					// 	pSnapshot = mgrSnapshot.Get(snapshotID)
-					// } else {
-					// 	var err error
-					// 	pSnapshot, err = mgrSnapshot.NewSnapshot([]byte(prefixKeyUser))
-					// 	if err != nil {
-					// 		return nil, ankadb.ErrCtxSnapshotMgr
-					// 	}
-					// }
-
-					// lstUser.SnapshotID = pSnapshot.SnapshotID
-					// lstUser.MaxIndex = int32(len(pSnapshot.Keys))
-
-					// // jarvisbase.Debug("query users", zap.Int32("MaxIndex", lstUser.MaxIndex))
-
-					// curi := beginIndex
-					// for ; curi < len(pSnapshot.Keys) && len(lstUser.Users) < nums; curi++ {
-					// 	cui := &pb.User{}
-					// 	err := ankadb.GetMsgFromDB(curdb, []byte(pSnapshot.Keys[curi]), cui)
-					// 	if err == nil {
-					// 		// s, err := json.Marshal(cui)
-					// 		// if err != nil {
-					// 		// 	jarvisbase.Debug("query users", zap.String("user key", pSnapshot.Keys[curi]), zap.Error(err))
-					// 		// } else {
-					// 		// 	jarvisbase.Debug("query users", zap.String("user key", pSnapshot.Keys[curi]), zap.String("user", string(s)))
-					// 		// }
-
-					// 		lstUser.Users = append(lstUser.Users, cui)
-					// 	}
-					// }
-
-					// lstUser.EndIndex = int32(curi)
 
 					return lstUser, nil
 				},
@@ -309,6 +243,8 @@ var typeQuery = graphql.NewObject(
 	},
 )
 
+// typeMutation - Mutation
+//		you can see dblogic_test.graphql
 var typeMutation = graphql.NewObject(graphql.ObjectConfig{
 	Name: "Mutation",
 	Fields: graphql.Fields{
@@ -387,3 +323,20 @@ var typeMutation = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+// testDB - testdb
+type testDB struct {
+	BaseDBLogic
+}
+
+// newTestDB - new testDB
+func newTestDB(cfg graphql.SchemaConfig) (DBLogic, error) {
+	basedblogic, err := NewBaseDBLogic(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &testDB{
+		BaseDBLogic: *basedblogic,
+	}, nil
+}

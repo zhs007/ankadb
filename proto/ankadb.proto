@@ -86,8 +86,6 @@ service AnkaDBServ {
 
     // query in graphQL
     rpc query (Query) returns (ReplyQuery) {}
-    // queryStream in graphQL
-    rpc queryStream (Query) returns (stream ReplyQuery) {}
     // query in graphQL
     rpc setQueryTemplate (QueryTemplate) returns (ReplyQueryTemplate) {}
 

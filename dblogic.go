@@ -15,8 +15,8 @@ type DBLogic interface {
 	// GetScheme - get GraphQL scheme
 	GetScheme() *graphql.Schema
 
+	// OnQuery - query graph request string
 	OnQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error)
-	OnQueryStream(ctx context.Context, request string, values map[string]interface{}, funcOnQueryStream FuncOnQueryStream) error
 }
 
 // BaseDBLogic - base DBLogic
@@ -39,4 +39,9 @@ func NewBaseDBLogic(cfg graphql.SchemaConfig) (*BaseDBLogic, error) {
 // GetScheme - get GraphQL scheme
 func (logic *BaseDBLogic) GetScheme() *graphql.Schema {
 	return logic.schema
+}
+
+// OnQuery - query graph request string
+func (logic *BaseDBLogic) OnQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error) {
+	return nil, nil
 }
