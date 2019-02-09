@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
+	"strings"
 
 	"github.com/goinggo/mapstructure"
 	"github.com/golang/protobuf/proto"
@@ -152,6 +154,22 @@ func GetResultError(result *graphql.Result) error {
 	return nil
 }
 
+// GraphQLFormattedErrorArr2Error - []gqlerrors.FormattedError to error
+func GraphQLFormattedErrorArr2Error(errs []gqlerrors.FormattedError) error {
+	var errstr string
+
+	for i, v := range errs {
+		str := fmt.Sprintf("Error-%v: %v", (i + 1), v.Error())
+		if i > 0 {
+			errstr = errstr + " " + str
+		} else {
+			errstr = str
+		}
+	}
+
+	return errors.New(errstr)
+}
+
 // ParseQuery - parse graphql query
 func ParseQuery(schema *graphql.Schema, query string, name string) (*ast.Document, []gqlerrors.FormattedError) {
 	source := source.NewSource(&source.Source{
@@ -169,4 +187,29 @@ func ParseQuery(schema *graphql.Schema, query string, name string) (*ast.Documen
 	}
 
 	return nil, validationResult.Errors
+}
+
+// Msg2Map - protobuf message to map
+func Msg2Map(msg proto.Message) map[string]interface{} {
+	t := reflect.TypeOf(msg)
+	v := reflect.ValueOf(msg)
+
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	var data = make(map[string]interface{})
+	for i := 0; i < t.NumField(); i++ {
+		jsonname := t.Field(i).Tag.Get("json")
+		if jsonname != "" && jsonname != "-" {
+			arr := strings.Split(jsonname, ",")
+			data[arr[0]] = v.Field(i).Interface()
+		}
+	}
+
+	return data
 }

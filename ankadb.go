@@ -44,13 +44,13 @@ type ankaDB struct {
 	mgrDB    DBMgr
 	serv     *ankaServer
 	servHTTP *ankaHTTPServer
-	cfg      Config
+	cfg      *Config
 	logic    DBLogic
 	mgrEvent *eventMgr
 }
 
 // NewAnkaDB -
-func NewAnkaDB(cfg Config, logic DBLogic) (AnkaDB, error) {
+func NewAnkaDB(cfg *Config, logic DBLogic) (AnkaDB, error) {
 	// return nil
 	dbmgr, err := NewDBMgr(cfg.PathDBRoot, cfg.ListDB)
 	if err != nil {
@@ -160,7 +160,7 @@ func (anka *ankaDB) SetQueryTemplate(templateName string, request string) error 
 
 // GetConfig - get config
 func (anka *ankaDB) GetConfig() *Config {
-	return &anka.cfg
+	return anka.cfg
 }
 
 // GetLogic - get DBLogic

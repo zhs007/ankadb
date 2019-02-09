@@ -27,4 +27,8 @@ var (
 	ErrNotFoundKey = errors.New("not found key")
 	// ErrInvalidEvent - invalid event
 	ErrInvalidEvent = errors.New("invalid event")
+	// ErrNotFoundTemplate - not found template
+	ErrNotFoundTemplate = errors.New("not found template")
+	// ErrNotInit - not initialization
+	ErrNotInit = errors.New("not initialization")
 )

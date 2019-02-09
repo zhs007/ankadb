@@ -2,7 +2,6 @@ package ankadb
 
 import (
 	"context"
-	"errors"
 
 	"github.com/graphql-go/graphql"
 	pb "github.com/zhs007/ankadb/proto"
@@ -63,14 +62,28 @@ func (logic *BaseDBLogic) Query(ctx context.Context, request string, values map[
 
 // QueryTemplate - query graphql with template
 func (logic *BaseDBLogic) QueryTemplate(ctx context.Context, templateName string, values map[string]interface{}) (*graphql.Result, error) {
-	return nil, nil
+	temp := logic.mgrQueryTemp.getQueryTemplate(templateName)
+	if temp == nil {
+		return nil, ErrNotFoundTemplate
+	}
+
+	result := graphql.Execute(graphql.ExecuteParams{
+		Schema:        *logic.schema,
+		Root:          nil,
+		AST:           temp.AST,
+		OperationName: "",
+		Args:          values,
+		Context:       ctx,
+	})
+
+	return result, nil
 }
 
 // SetQueryTemplate - set query template
 func (logic *BaseDBLogic) SetQueryTemplate(templateName string, request string) error {
 	err := logic.mgrQueryTemp.setQueryTemplate(logic.schema, templateName, request)
 	if err != nil {
-		return errors.New(err[0].Error())
+		return GraphQLFormattedErrorArr2Error(err)
 	}
 
 	return nil

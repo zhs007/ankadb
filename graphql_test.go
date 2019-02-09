@@ -1,6 +1,9 @@
 package ankadb
 
 import (
+	"context"
+	"testing"
+
 	"github.com/graphql-go/graphql"
 	"github.com/zhs007/ankadb/graphqlext"
 	"github.com/zhs007/ankadb/test"
@@ -23,7 +26,7 @@ func makeUserNameKey(userName string) string {
 }
 
 // inputTypeMessage - Message
-//		you can see dblogic_test.graphql
+//		you can see graphql_test.graphql
 var inputTypeMessage = graphql.NewInputObject(
 	graphql.InputObjectConfig{
 		Name: "MessageInput",
@@ -48,7 +51,7 @@ var inputTypeMessage = graphql.NewInputObject(
 )
 
 // inputTypeUser - User
-//		you can see dblogic_test.graphql
+//		you can see graphql_test.graphql
 var inputTypeUser = graphql.NewInputObject(
 	graphql.InputObjectConfig{
 		Name: "UserInput",
@@ -67,7 +70,7 @@ var inputTypeUser = graphql.NewInputObject(
 )
 
 // typeUser - User
-//		you can see dblogic_test.graphql
+//		you can see graphql_test.graphql
 var typeUser = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "User",
@@ -86,7 +89,7 @@ var typeUser = graphql.NewObject(
 )
 
 // typeMessage - Message
-//		you can see dblogic_test.graphql
+//		you can see graphql_test.graphql
 var typeMessage = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Message",
@@ -111,7 +114,7 @@ var typeMessage = graphql.NewObject(
 )
 
 // typeUserList - UserList
-//		you can see dblogic_test.graphql
+//		you can see graphql_test.graphql
 var typeUserList = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "UserList",
@@ -124,7 +127,7 @@ var typeUserList = graphql.NewObject(
 )
 
 // typeQuery - Query
-//		you can see dblogic_test.graphql
+//		you can see graphql_test.graphql
 var typeQuery = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Query",
@@ -244,7 +247,7 @@ var typeQuery = graphql.NewObject(
 )
 
 // typeMutation - Mutation
-//		you can see dblogic_test.graphql
+//		you can see graphql_test.graphql
 var typeMutation = graphql.NewObject(graphql.ObjectConfig{
 	Name: "Mutation",
 	Fields: graphql.Fields{
@@ -324,19 +327,76 @@ var typeMutation = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+const queryUpdUser = `mutation UpdUser($user: UserInput!) {
+	updUser(user: $user) {
+		userID
+	}
+}`
+
 // testDB - testdb
 type testDB struct {
-	BaseDBLogic
+	db AnkaDB
 }
 
 // newTestDB - new testDB
-func newTestDB(cfg graphql.SchemaConfig) (DBLogic, error) {
-	basedblogic, err := NewBaseDBLogic(cfg)
+func newTestDB(cfg *Config) (*testDB, error) {
+	basedblogic, err := NewBaseDBLogic(graphql.SchemaConfig{
+		Query:    typeQuery,
+		Mutation: typeMutation,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	db, err := NewAnkaDB(cfg, basedblogic)
 	if err != nil {
 		return nil, err
 	}
 
 	return &testDB{
-		BaseDBLogic: *basedblogic,
+		db: db,
 	}, nil
+}
+
+// UpdUser - update user
+func (db *testDB) UpdUser(user *testpb.User) error {
+	if db.db == nil {
+		return ErrNotInit
+	}
+
+	params := make(map[string]interface{})
+	err := MakeParamsFromMsg(params, "user", user)
+	if err != nil {
+		return err
+	}
+
+	result, err := db.db.Query(context.Background(), queryUpdUser, params)
+	if err != nil {
+		return err
+	}
+
+	err = GetResultError(result)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Test_GraphQL(t *testing.T) {
+	cfg, err := LoadConfig("./test/graphql.yaml")
+	if err != nil {
+		t.Fatalf("Test_GraphQL LoadConfig err %v", err)
+
+		return
+	}
+
+	_, err = newTestDB(cfg)
+	if err != nil {
+		t.Fatalf("Test_GraphQL newTestDB err %v", err)
+
+		return
+	}
+
+	t.Logf("Test_GraphQL OK")
 }
