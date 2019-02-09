@@ -298,7 +298,7 @@ var typeMutation = graphql.NewObject(graphql.ObjectConfig{
 					return nil, ErrCtxAnkaDB
 				}
 
-				curdb := anka.GetDatabase("chatbotdb")
+				curdb := anka.GetDatabase("user")
 				if curdb == nil {
 					return nil, ErrCtxCurDB
 				}
@@ -327,12 +327,6 @@ var typeMutation = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-const queryUpdUser = `mutation UpdUser($user: UserInput!) {
-	updUser(user: $user) {
-		userID
-	}
-}`
-
 // testDB - testdb
 type testDB struct {
 	db AnkaDB
@@ -358,29 +352,47 @@ func newTestDB(cfg *Config) (*testDB, error) {
 	}, nil
 }
 
+const queryUpdUser = `mutation UpdUser($user: UserInput!) {
+	updUser(user: $user) {
+		userID
+	}
+}`
+
+// resultUpdUser - updUser
+type resultUpdUser struct {
+	UpdUser struct {
+		UserID string `json:"userID"`
+	} `json:"updUser"`
+}
+
 // UpdUser - update user
-func (db *testDB) UpdUser(user *testpb.User) error {
+func (db *testDB) UpdUser(user *testpb.User) (string, error) {
 	if db.db == nil {
-		return ErrNotInit
+		return "", ErrNotInit
 	}
 
 	params := make(map[string]interface{})
-	err := MakeParamsFromMsg(params, "user", user)
-	if err != nil {
-		return err
-	}
+	params["user"] = Msg2Map(user)
 
 	result, err := db.db.Query(context.Background(), queryUpdUser, params)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	err = GetResultError(result)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	// fmt.Printf("%v", result)
+
+	uu := &resultUpdUser{}
+	err = MakeObjFromResult(result, uu)
+	if err != nil {
+		return "", err
+	}
+
+	return uu.UpdUser.UserID, nil
 }
 
 func Test_GraphQL(t *testing.T) {
@@ -391,9 +403,26 @@ func Test_GraphQL(t *testing.T) {
 		return
 	}
 
-	_, err = newTestDB(cfg)
+	tdb, err := newTestDB(cfg)
 	if err != nil {
 		t.Fatalf("Test_GraphQL newTestDB err %v", err)
+
+		return
+	}
+
+	uid, err := tdb.UpdUser(&testpb.User{
+		NickName: "user 0",
+		UserID:   "1",
+		UserName: "user0",
+	})
+	if err != nil {
+		t.Fatalf("Test_GraphQL UpdUser err %v", err)
+
+		return
+	}
+
+	if uid != "1" {
+		t.Fatalf("Test_GraphQL UpdUser uid err %v", uid)
 
 		return
 	}

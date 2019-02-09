@@ -31,4 +31,6 @@ var (
 	ErrNotFoundTemplate = errors.New("not found template")
 	// ErrNotInit - not initialization
 	ErrNotInit = errors.New("not initialization")
+	// ErrParamIsNotMap - param is not a map
+	ErrParamIsNotMap = errors.New("param is not a map")
 )

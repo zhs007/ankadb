@@ -91,7 +91,10 @@ func GetMsgFromDB(db database.Database, key []byte, msg proto.Message) error {
 
 // GetMsgFromParam - get protobuf message from param
 func GetMsgFromParam(params graphql.ResolveParams, paramName string, msg proto.Message) error {
-	ci := params.Args[paramName].(map[string]interface{})
+	ci, isok := params.Args[paramName].(map[string]interface{})
+	if !isok {
+		return ErrParamIsNotMap
+	}
 
 	if err := mapstructure.Decode(ci, msg); err != nil {
 		return err
