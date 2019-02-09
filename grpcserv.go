@@ -65,7 +65,7 @@ func (s *ankaServer) Query(ctx context.Context, in *pb.Query) (*pb.ReplyQuery, e
 	// curdb := s.anka.MgrDB.GetDB(in.GetName())
 	curctx := context.WithValue(ctx, interface{}("ankadb"), s.anka)
 
-	result, err := s.anka.logic.OnQuery(curctx, in.GetQueryData(), mapval)
+	result, err := s.anka.logic.Query(curctx, in.GetQueryData(), mapval)
 	if err != nil {
 		rq := pb.ReplyQuery{
 			Err: err.Error(),
@@ -80,29 +80,29 @@ func (s *ankaServer) Query(ctx context.Context, in *pb.Query) (*pb.ReplyQuery, e
 	}, nil
 }
 
-// QueryStream implements ankadbpb.ankaServer
-func (s *ankaServer) QueryStream(in *pb.Query, gs pb.AnkaDBServ_QueryStreamServer) error {
-	var mapval map[string]interface{}
-	err := json.Unmarshal([]byte(in.GetVarData()), &mapval)
-	if err != nil {
-		gs.Send(&pb.ReplyQuery{
-			Err: err.Error(),
-		})
+// // QueryStream implements ankadbpb.ankaServer
+// func (s *ankaServer) QueryStream(in *pb.Query, gs pb.AnkaDBServ_QueryStreamServer) error {
+// 	var mapval map[string]interface{}
+// 	err := json.Unmarshal([]byte(in.GetVarData()), &mapval)
+// 	if err != nil {
+// 		gs.Send(&pb.ReplyQuery{
+// 			Err: err.Error(),
+// 		})
 
-		return nil
-	}
+// 		return nil
+// 	}
 
-	err = s.anka.logic.OnQueryStream(gs.Context(), in.GetQueryData(), mapval, func(rq *pb.ReplyQuery) {
-		gs.Send(rq)
-	})
-	if err != nil {
-		gs.Send(&pb.ReplyQuery{
-			Err: err.Error(),
-		})
-	}
+// 	err = s.anka.logic.OnQueryStream(gs.Context(), in.GetQueryData(), mapval, func(rq *pb.ReplyQuery) {
+// 		gs.Send(rq)
+// 	})
+// 	if err != nil {
+// 		gs.Send(&pb.ReplyQuery{
+// 			Err: err.Error(),
+// 		})
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 // Get implements ankadbpb.ankaServer
 func (s *ankaServer) Get(ctx context.Context, in *pb.GetValue) (*pb.ReplyGetValue, error) {

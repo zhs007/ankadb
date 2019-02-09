@@ -206,7 +206,7 @@ func Test_LevelDB(t *testing.T) {
 		if it.Valid() {
 			nums++
 
-			t.Logf("Test_LevelDB %v - %v", string(it.Key()), string(it.Value()))
+			// t.Logf("Test_LevelDB %v - %v", string(it.Key()), string(it.Value()))
 		}
 
 		if !it.Next() {
@@ -234,7 +234,7 @@ func Test_LevelDB(t *testing.T) {
 		if it.Valid() {
 			nums++
 
-			t.Logf("Test_LevelDB %v - %v", string(it.Key()), string(it.Value()))
+			//t.Logf("Test_LevelDB %v - %v", string(it.Key()), string(it.Value()))
 		}
 
 		if !it.Next() {

@@ -17,3 +17,5 @@ test/database_testasync
 test/test001
 test/test001-001
 test/test001-002
+test/test_msg
+test/test_user

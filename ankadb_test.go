@@ -4,22 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
-
-	"github.com/graphql-go/graphql"
 )
-
-// dblogicTest -
-type dblogicTest struct {
-	BaseDBLogic
-}
-
-func (dbl *dblogicTest) OnQuery(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error) {
-	return nil, nil
-}
-
-func (dbl *dblogicTest) OnQueryStream(ctx context.Context, request string, values map[string]interface{}, funcOnQueryStream FuncOnQueryStream) error {
-	return nil
-}
 
 func Test_AnkaDB(t *testing.T) {
 	cfg, err := LoadConfig("./test/test001.yaml")
@@ -29,7 +14,7 @@ func Test_AnkaDB(t *testing.T) {
 		return
 	}
 
-	anka, err := NewAnkaDB(*cfg, &dblogicTest{})
+	anka, err := NewAnkaDB(cfg, &BaseDBLogic{})
 	if err != nil {
 		t.Fatalf("Test_AnkaDB NewAnkaDB err %v", err)
 

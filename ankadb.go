@@ -2,7 +2,6 @@ package ankadb
 
 import (
 	"context"
-	"errors"
 
 	"github.com/graphql-go/graphql"
 	"github.com/zhs007/ankadb/database"
@@ -35,21 +34,23 @@ type AnkaDB interface {
 	GetLogic() DBLogic
 	// GetDBMgr - get DBMgr
 	GetDBMgr() DBMgr
+
+	// GetDatabase - get databse with dbname
+	GetDatabase(dbname string) database.Database
 }
 
 // ankaDB - An implementation for AnkaDB
 type ankaDB struct {
-	mgrDB        DBMgr
-	serv         *ankaServer
-	servHTTP     *ankaHTTPServer
-	cfg          Config
-	logic        DBLogic
-	mgrEvent     *eventMgr
-	mgrQueryTemp *queryTemplatesMgr
+	mgrDB    DBMgr
+	serv     *ankaServer
+	servHTTP *ankaHTTPServer
+	cfg      *Config
+	logic    DBLogic
+	mgrEvent *eventMgr
 }
 
 // NewAnkaDB -
-func NewAnkaDB(cfg Config, logic DBLogic) (AnkaDB, error) {
+func NewAnkaDB(cfg *Config, logic DBLogic) (AnkaDB, error) {
 	// return nil
 	dbmgr, err := NewDBMgr(cfg.PathDBRoot, cfg.ListDB)
 	if err != nil {
@@ -63,7 +64,6 @@ func NewAnkaDB(cfg Config, logic DBLogic) (AnkaDB, error) {
 	}
 
 	anka.mgrEvent = newEventMgr(anka)
-	anka.mgrQueryTemp = newQueryTemplatesMgr()
 
 	return anka, nil
 }
@@ -145,14 +145,14 @@ func (anka *ankaDB) stop() error {
 func (anka *ankaDB) Query(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error) {
 	curctx := context.WithValue(ctx, interface{}("ankadb"), anka)
 
-	return anka.logic.OnQuery(curctx, request, values)
+	return anka.logic.Query(curctx, request, values)
 }
 
 // SetQueryTemplate - set query template
 func (anka *ankaDB) SetQueryTemplate(templateName string, request string) error {
-	err := anka.mgrQueryTemp.setQueryTemplate(anka.logic.GetScheme(), templateName, request)
+	err := anka.logic.SetQueryTemplate(templateName, request)
 	if err != nil {
-		return errors.New(err[0].Error())
+		return err
 	}
 
 	return nil
@@ -160,7 +160,7 @@ func (anka *ankaDB) SetQueryTemplate(templateName string, request string) error 
 
 // GetConfig - get config
 func (anka *ankaDB) GetConfig() *Config {
-	return &anka.cfg
+	return anka.cfg
 }
 
 // GetLogic - get DBLogic
@@ -201,4 +201,9 @@ func (anka *ankaDB) Set(ctx context.Context, dbname string, key string, value []
 // RegEventFunc - register a function for event
 func (anka *ankaDB) RegEventFunc(event string, eventfunc FuncAnkaDBEvent) error {
 	return anka.mgrEvent.regAnkaDBEventFunc(event, eventfunc)
+}
+
+// GetDatabase - get databse with dbname
+func (anka *ankaDB) GetDatabase(dbname string) database.Database {
+	return anka.mgrDB.GetDB(dbname)
 }
