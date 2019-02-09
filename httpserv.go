@@ -43,7 +43,7 @@ func (s *ankaHTTPServer) procGraphQL(w http.ResponseWriter, r *http.Request) *gr
 	// curdb := s.anka.MgrDB.GetDB(ankadbname)
 	curctx := context.WithValue(r.Context(), interface{}("ankadb"), s.anka)
 
-	result1, err := s.anka.logic.OnQuery(curctx, querystr, mapval)
+	result1, err := s.anka.logic.Query(curctx, querystr, mapval)
 	if err != nil {
 		return MakeGraphQLErrorResult(err)
 	}

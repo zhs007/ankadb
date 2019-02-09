@@ -2,7 +2,6 @@ package ankadb
 
 import (
 	"context"
-	"errors"
 
 	"github.com/graphql-go/graphql"
 	"github.com/zhs007/ankadb/database"
@@ -42,13 +41,12 @@ type AnkaDB interface {
 
 // ankaDB - An implementation for AnkaDB
 type ankaDB struct {
-	mgrDB        DBMgr
-	serv         *ankaServer
-	servHTTP     *ankaHTTPServer
-	cfg          Config
-	logic        DBLogic
-	mgrEvent     *eventMgr
-	mgrQueryTemp *queryTemplatesMgr
+	mgrDB    DBMgr
+	serv     *ankaServer
+	servHTTP *ankaHTTPServer
+	cfg      Config
+	logic    DBLogic
+	mgrEvent *eventMgr
 }
 
 // NewAnkaDB -
@@ -66,7 +64,6 @@ func NewAnkaDB(cfg Config, logic DBLogic) (AnkaDB, error) {
 	}
 
 	anka.mgrEvent = newEventMgr(anka)
-	anka.mgrQueryTemp = newQueryTemplatesMgr()
 
 	return anka, nil
 }
@@ -148,14 +145,14 @@ func (anka *ankaDB) stop() error {
 func (anka *ankaDB) Query(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error) {
 	curctx := context.WithValue(ctx, interface{}("ankadb"), anka)
 
-	return anka.logic.OnQuery(curctx, request, values)
+	return anka.logic.Query(curctx, request, values)
 }
 
 // SetQueryTemplate - set query template
 func (anka *ankaDB) SetQueryTemplate(templateName string, request string) error {
-	err := anka.mgrQueryTemp.setQueryTemplate(anka.logic.GetScheme(), templateName, request)
+	err := anka.logic.SetQueryTemplate(templateName, request)
 	if err != nil {
-		return errors.New(err[0].Error())
+		return err
 	}
 
 	return nil

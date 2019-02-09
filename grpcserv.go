@@ -65,7 +65,7 @@ func (s *ankaServer) Query(ctx context.Context, in *pb.Query) (*pb.ReplyQuery, e
 	// curdb := s.anka.MgrDB.GetDB(in.GetName())
 	curctx := context.WithValue(ctx, interface{}("ankadb"), s.anka)
 
-	result, err := s.anka.logic.OnQuery(curctx, in.GetQueryData(), mapval)
+	result, err := s.anka.logic.Query(curctx, in.GetQueryData(), mapval)
 	if err != nil {
 		rq := pb.ReplyQuery{
 			Err: err.Error(),
