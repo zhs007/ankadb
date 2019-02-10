@@ -1,5 +1,13 @@
 # AnkaDB Development Log
 
+### 2019-02-10
+
+今天增加了Dockerfile，主要是为了``RocksDB``编译加的，还调整了``travis``配置，直接用``Docker``。  
+后面项目如果要Docker部署，可以直接基于这个Dockerfile来做。
+
+I added the Dockerfile today, for ``RocksDB`` compilation, and adjusted the ``travis`` configuration.
+If your project is to be deployed by Docker, it can be done based on this Dockerfile.
+
 ### 2019-02-06
 
 今天开始优化``GraphQL``部分。  
