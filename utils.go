@@ -206,11 +206,33 @@ func ParseQuery(schema *graphql.Schema, query string, name string) (*ast.Documen
 	return nil, validationResult.Errors
 }
 
-// Msg2Map - protobuf message to map
-func Msg2Map(msg proto.Message) map[string]interface{} {
-	t := reflect.TypeOf(msg)
-	v := reflect.ValueOf(msg)
+func buildSlice(t reflect.Type, v reflect.Value) []interface{} {
+	var data []interface{}
+	for i := 0; i < v.Len(); i++ {
+		cv := v.Index(i)
 
+		// fmt.Printf("buildSlice %v-%v ", i, cv)
+		// fmt.Printf("%v-", cv.Kind())
+
+		if cv.Kind() == reflect.Ptr {
+			cv = cv.Elem()
+		}
+
+		// fmt.Printf("%v\n", cv.Kind())
+
+		if cv.Kind() == reflect.Slice {
+			data = append(data, buildSlice(cv.Type(), cv))
+		} else if cv.Kind() == reflect.Struct {
+			data = append(data, buildStruct(cv.Type(), cv))
+		} else {
+			data = append(data, cv.Interface())
+		}
+	}
+
+	return data
+}
+
+func buildStruct(t reflect.Type, v reflect.Value) map[string]interface{} {
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
@@ -224,9 +246,31 @@ func Msg2Map(msg proto.Message) map[string]interface{} {
 		jsonname := t.Field(i).Tag.Get("json")
 		if jsonname != "" && jsonname != "-" {
 			arr := strings.Split(jsonname, ",")
-			data[arr[0]] = v.Field(i).Interface()
+
+			cv := v.Field(i)
+			if cv.Kind() == reflect.Ptr {
+				cv = cv.Elem()
+			}
+
+			if cv.Kind() == reflect.Slice {
+				data[arr[0]] = buildSlice(t.Field(i).Type, cv)
+			} else if cv.Kind() == reflect.Struct {
+				data[arr[0]] = buildStruct(t.Field(i).Type, cv)
+			} else {
+				data[arr[0]] = cv.Interface()
+			}
 		}
 	}
 
+	// fmt.Printf("buildStruct-%v\n", data)
+
 	return data
+}
+
+// Msg2Map - protobuf message to map
+func Msg2Map(msg proto.Message) map[string]interface{} {
+	t := reflect.TypeOf(msg)
+	v := reflect.ValueOf(msg)
+
+	return buildStruct(t, v)
 }
