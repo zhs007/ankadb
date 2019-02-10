@@ -16,7 +16,7 @@ type ankaRDB struct {
 // NewAnkaRDB - returns a ankaDB wrapped object.
 func NewAnkaRDB(dbpath string) (Database, error) {
 	bbto := gorocksdb.NewDefaultBlockBasedTableOptions()
-	bbto.SetBlockCache(nil) //gorocksdb.NewLRUCache(3 << 30))
+	bbto.SetBlockCache(gorocksdb.NewLRUCache(3 << 30))
 	opts := gorocksdb.NewDefaultOptions()
 	opts.SetBlockBasedTableFactory(bbto)
 	opts.SetCreateIfMissing(true)
@@ -78,18 +78,31 @@ func (rdb *ankaRDB) Delete(key []byte) error {
 
 // NewIterator - new iterator
 func (rdb *ankaRDB) NewIterator() Iterator {
-	it := rdb.db.NewIterator(rdb.itro)
-	return &iteratorRDB{
-		iter: it,
+	it := &iteratorRDB{
+		iter: rdb.db.NewIterator(rdb.itro),
 	}
+
+	if it.Error() == nil {
+		it.First()
+	}
+
+	return it
 }
 
 // NewIteratorWithPrefix - new iterator with prefix
 func (rdb *ankaRDB) NewIteratorWithPrefix(prefix []byte) Iterator {
-	it := rdb.db.NewIterator(rdb.itro)
-	return &iteratorRDB{
-		iter: it,
+	// ro := gorocksdb.NewDefaultReadOptions()
+	// ro.SetFillCache(false)
+	// ro.SetPrefixExtractor(gorocksdb.NewFixedPrefixTransform(len(prefix)))
+	it := &iteratorRDB{
+		iter: rdb.db.NewIterator(rdb.itro),
 	}
+
+	if it.Error() == nil {
+		it.Seek(prefix)
+	}
+
+	return it
 }
 
 // Close - close database
