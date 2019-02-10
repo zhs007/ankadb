@@ -2,6 +2,7 @@ package ankadb
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/graphql-go/graphql"
@@ -352,17 +353,21 @@ func newTestDB(cfg *Config) (*testDB, error) {
 	}, nil
 }
 
-const queryUpdUser = `mutation UpdUser($user: UserInput!) {
-	updUser(user: $user) {
+const queryUser = `query User($userID: ID!) {
+	user(userID: $userID) {
+		nickName
 		userID
+		userName
 	}
 }`
 
-// resultUpdUser - updUser
-type resultUpdUser struct {
-	UpdUser struct {
-		UserID string `json:"userID"`
-	} `json:"updUser"`
+// resultUser - user
+type resultUser struct {
+	User struct {
+		NickName string `json:"nickName"`
+		UserID   string `json:"userID"`
+		UserName string `json:"userName"`
+	} `json:"user"`
 }
 
 // UpdUser - update user
@@ -395,6 +400,19 @@ func (db *testDB) UpdUser(user *testpb.User) (string, error) {
 	return uu.UpdUser.UserID, nil
 }
 
+const queryUpdUser = `mutation UpdUser($user: UserInput!) {
+	updUser(user: $user) {
+		userID
+	}
+}`
+
+// resultUpdUser - updUser
+type resultUpdUser struct {
+	UpdUser struct {
+		UserID string `json:"userID"`
+	} `json:"updUser"`
+}
+
 func Test_GraphQL(t *testing.T) {
 	cfg, err := LoadConfig("./test/graphql.yaml")
 	if err != nil {
@@ -410,21 +428,27 @@ func Test_GraphQL(t *testing.T) {
 		return
 	}
 
-	uid, err := tdb.UpdUser(&testpb.User{
-		NickName: "user 0",
-		UserID:   "1",
-		UserName: "user0",
-	})
-	if err != nil {
-		t.Fatalf("Test_GraphQL UpdUser err %v", err)
+	for i := 0; i < 100; i++ {
+		nickname := fmt.Sprintf("user %d", i)
+		userid := fmt.Sprintf("%d", (i + 1))
+		username := fmt.Sprintf("user%d", i)
 
-		return
-	}
+		uid, err := tdb.UpdUser(&testpb.User{
+			NickName: nickname,
+			UserID:   userid,
+			UserName: username,
+		})
+		if err != nil {
+			t.Fatalf("Test_GraphQL UpdUser err %v", err)
 
-	if uid != "1" {
-		t.Fatalf("Test_GraphQL UpdUser uid err %v", uid)
+			return
+		}
 
-		return
+		if uid != userid {
+			t.Fatalf("Test_GraphQL UpdUser uid err %v", uid)
+
+			return
+		}
 	}
 
 	t.Logf("Test_GraphQL OK")
