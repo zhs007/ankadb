@@ -6,4 +6,6 @@ rm -rf test/test001-002
 rm -rf test/test_msg
 rm -rf test/test_user
 
-go test ./... -v
+CGO_CFLAGS="-I/usr/local/rocksdb/include" \
+CGO_LDFLAGS="-L/usr/local/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd" \
+    go test ./... -v

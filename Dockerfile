@@ -30,4 +30,6 @@ RUN dep ensure -vendor-only -v
 COPY . $GOPATH/src/github.com/zhs007/ankadb
 
 RUN sh starttesting.sh \
-    && go build .
+    && CGO_CFLAGS="-I/usr/local/rocksdb/include" \
+    CGO_LDFLAGS="-L/usr/local/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd" \
+    go build .
