@@ -1,7 +1,5 @@
 package database
 
-import "github.com/syndtr/goleveldb/leveldb/iterator"
-
 // Database - key / value database
 type Database interface {
 	// GetPath - returns the path to the database directory
@@ -15,13 +13,40 @@ type Database interface {
 	// Delete - deletes the key from the queue and database
 	Delete(key []byte) error
 	// NewIterator - new iterator
-	NewIterator() iterator.Iterator
+	NewIterator() Iterator
 	// NewIteratorWithPrefix - new iterator with prefix
-	NewIteratorWithPrefix(prefix []byte) iterator.Iterator
+	NewIteratorWithPrefix(prefix []byte) Iterator
 	// Close - close database
 	Close()
 	// NewBatch - new batch
 	NewBatch() Batch
+}
+
+// Iterator - iterator
+type Iterator interface {
+	// First - seek to first
+	First() bool
+	// Last - seek to last
+	Last() bool
+	// Seek - seek
+	Seek(key []byte) bool
+	// Next - seek to next
+	Next() bool
+	// Prev - seek to prev
+	Prev() bool
+
+	// Valid - is valid
+	Valid() bool
+	// Error - get error
+	Error() error
+
+	// Key - get key
+	Key() []byte
+	// Value - get value
+	Value() []byte
+
+	// Release - release
+	Release()
 }
 
 // Batch - batch control
@@ -36,4 +61,7 @@ type Batch interface {
 	ValueSize() int
 	// Reset - reset batch
 	Reset()
+
+	// Release - release
+	Release()
 }

@@ -4,7 +4,6 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/errors"
 	"github.com/syndtr/goleveldb/leveldb/filter"
-	"github.com/syndtr/goleveldb/leveldb/iterator"
 	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/util"
 )
@@ -81,12 +80,20 @@ func (db *ankaLDB) Delete(key []byte) error {
 }
 
 // NewIterator - new iterator
-func (db *ankaLDB) NewIterator() iterator.Iterator {
+func (db *ankaLDB) NewIterator() Iterator {
+	// return &iteratorLDB{
+	// 	iter: db.db.NewIterator(nil, nil),
+	// }
+
 	return db.db.NewIterator(nil, nil)
 }
 
 // NewIteratorWithPrefix - new iterator with prefix
-func (db *ankaLDB) NewIteratorWithPrefix(prefix []byte) iterator.Iterator {
+func (db *ankaLDB) NewIteratorWithPrefix(prefix []byte) Iterator {
+	// return &iteratorLDB{
+	// 	iter: db.db.NewIterator(util.BytesPrefix(prefix), nil),
+	// }
+
 	return db.db.NewIterator(util.BytesPrefix(prefix), nil)
 }
 
@@ -146,3 +153,62 @@ func (b *ankaLDBBatch) Reset() {
 	b.b.Reset()
 	b.size = 0
 }
+
+// Release - release
+func (b *ankaLDBBatch) Release() {
+
+}
+
+// // iteratorLDB
+// type iteratorLDB struct {
+// 	iter iterator.Iterator
+// }
+
+// // First - seek to first
+// func (it *iteratorLDB) First() bool {
+// 	return it.iter.First()
+// }
+
+// // Last - seek to last
+// func (it *iteratorLDB) Last() bool {
+// 	return it.iter.Last()
+// }
+
+// // Seek - seek
+// func (it *iteratorLDB) Seek(key []byte) bool {
+// 	return it.iter.Seek(key)
+// }
+
+// // Next - seek to next
+// func (it *iteratorLDB) Next() bool {
+// 	return it.iter.Next()
+// }
+
+// // Prev - seek to prev
+// func (it *iteratorLDB) Prev() bool {
+// 	return it.iter.Prev()
+// }
+
+// // Valid - is valid
+// func (it *iteratorLDB) Valid() bool {
+// 	return it.iter.Valid()
+// }
+
+// // Error - get error
+// func (it *iteratorLDB) Error() error {
+// 	return it.iter.Error()
+// }
+
+// // Key - get key
+// func (it *iteratorLDB) Key() []byte {
+// 	return it.iter.Key()
+// }
+
+// // Value - get value
+// func (it *iteratorLDB) Value() []byte {
+// 	return it.iter.Value()
+// }
+
+// // Close - close
+// func (it *iteratorLDB) Close() {
+// }
