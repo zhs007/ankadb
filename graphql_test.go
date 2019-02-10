@@ -146,7 +146,7 @@ var typeQuery = graphql.NewObject(
 						return nil, ErrCtxAnkaDB
 					}
 
-					curdb := anka.GetDatabase("chatbotdb")
+					curdb := anka.GetDatabase("user")
 					if curdb == nil {
 						return nil, ErrCtxCurDB
 					}
@@ -175,7 +175,7 @@ var typeQuery = graphql.NewObject(
 						return nil, ErrCtxAnkaDB
 					}
 
-					curdb := anka.GetDatabase("chatbotdb")
+					curdb := anka.GetDatabase("user")
 					if curdb == nil {
 						return nil, ErrCtxCurDB
 					}
@@ -200,7 +200,7 @@ var typeQuery = graphql.NewObject(
 						return nil, ErrCtxAnkaDB
 					}
 
-					curdb := anka.GetDatabase("chatbotdb")
+					curdb := anka.GetDatabase("user")
 					if curdb == nil {
 						return nil, ErrCtxCurDB
 					}
@@ -223,7 +223,7 @@ var typeQuery = graphql.NewObject(
 						return nil, ErrCtxAnkaDB
 					}
 
-					curdb := anka.GetDatabase("chatbotdb")
+					curdb := anka.GetDatabase("user")
 					if curdb == nil {
 						return nil, ErrCtxCurDB
 					}
@@ -266,7 +266,7 @@ var typeMutation = graphql.NewObject(graphql.ObjectConfig{
 					return nil, ErrCtxAnkaDB
 				}
 
-				curdb := anka.GetDatabase("chatbotdb")
+				curdb := anka.GetDatabase("user")
 				if curdb == nil {
 					return nil, ErrCtxCurDB
 				}
@@ -353,21 +353,17 @@ func newTestDB(cfg *Config) (*testDB, error) {
 	}, nil
 }
 
-const queryUser = `query User($userID: ID!) {
-	user(userID: $userID) {
-		nickName
+const queryUpdUser = `mutation UpdUser($user: UserInput!) {
+	updUser(user: $user) {
 		userID
-		userName
 	}
 }`
 
-// resultUser - user
-type resultUser struct {
-	User struct {
-		NickName string `json:"nickName"`
-		UserID   string `json:"userID"`
-		UserName string `json:"userName"`
-	} `json:"user"`
+// resultUpdUser - updUser
+type resultUpdUser struct {
+	UpdUser struct {
+		UserID string `json:"userID"`
+	} `json:"updUser"`
 }
 
 // UpdUser - update user
@@ -391,26 +387,65 @@ func (db *testDB) UpdUser(user *testpb.User) (string, error) {
 
 	// fmt.Printf("%v", result)
 
-	uu := &resultUpdUser{}
-	err = MakeObjFromResult(result, uu)
+	// uu := &resultUpdUser{}
+	// err = MakeObjFromResult(result, uu)
+	// if err != nil {
+	// 	return "", err
+	// }
+	retuser := &testpb.User{}
+	err = MakeMsgFromResultEx(result, "updUser", retuser)
 	if err != nil {
 		return "", err
 	}
 
-	return uu.UpdUser.UserID, nil
+	return retuser.UserID, nil
 }
 
-const queryUpdUser = `mutation UpdUser($user: UserInput!) {
-	updUser(user: $user) {
+const queryUser = `query User($userID: ID!) {
+	user(userID: $userID) {
+		nickName
 		userID
+		userName
 	}
 }`
 
-// resultUpdUser - updUser
-type resultUpdUser struct {
-	UpdUser struct {
-		UserID string `json:"userID"`
-	} `json:"updUser"`
+// resultUser - user
+type resultUser struct {
+	User struct {
+		NickName string `json:"nickName"`
+		UserID   string `json:"userID"`
+		UserName string `json:"userName"`
+	} `json:"user"`
+}
+
+// GetUser - get user
+func (db *testDB) GetUser(userID string) (*testpb.User, error) {
+	if db.db == nil {
+		return nil, ErrNotInit
+	}
+
+	params := make(map[string]interface{})
+	params["userID"] = userID
+
+	result, err := db.db.Query(context.Background(), queryUser, params)
+	if err != nil {
+		return nil, err
+	}
+
+	err = GetResultError(result)
+	if err != nil {
+		return nil, err
+	}
+
+	// fmt.Printf("%v", result)
+
+	user := &testpb.User{}
+	err = MakeMsgFromResultEx(result, "user", user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func Test_GraphQL(t *testing.T) {
@@ -446,6 +481,37 @@ func Test_GraphQL(t *testing.T) {
 
 		if uid != userid {
 			t.Fatalf("Test_GraphQL UpdUser uid err %v", uid)
+
+			return
+		}
+	}
+
+	for i := 0; i < 100; i++ {
+		nickname := fmt.Sprintf("user %d", i)
+		userid := fmt.Sprintf("%d", (i + 1))
+		username := fmt.Sprintf("user%d", i)
+
+		user, err := tdb.GetUser(userid)
+		if err != nil {
+			t.Fatalf("Test_GraphQL GetUser err %v", err)
+
+			return
+		}
+
+		if user.UserID != userid {
+			t.Fatalf("Test_GraphQL GetUser UserID err %v", user.UserID)
+
+			return
+		}
+
+		if user.NickName != nickname {
+			t.Fatalf("Test_GraphQL GetUser NickName err %v", user.NickName)
+
+			return
+		}
+
+		if user.UserName != username {
+			t.Fatalf("Test_GraphQL GetUser UserName err %v", user.UserName)
 
 			return
 		}

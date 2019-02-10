@@ -137,6 +137,20 @@ func MakeMsgFromResult(result *graphql.Result, msg proto.Message) error {
 	return nil
 }
 
+// MakeMsgFromResultEx - make protobuf object from graphql.Result
+func MakeMsgFromResultEx(result *graphql.Result, name string, msg proto.Message) error {
+	mobj, isok := result.Data.(map[string]interface{})
+	if !isok {
+		return ErrResultIsNotMap
+	}
+
+	if err := mapstructure.Decode(mobj[name], msg); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // GetResultError - get result error
 func GetResultError(result *graphql.Result) error {
 	if result.HasErrors() {
