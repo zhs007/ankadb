@@ -149,7 +149,7 @@ var typeQuery = graphql.NewObject(
 						return nil, ErrCtxAnkaDB
 					}
 
-					curdb := anka.GetDatabase("user")
+					curdb := anka.GetDatabase("msg")
 					if curdb == nil {
 						return nil, ErrCtxCurDB
 					}
@@ -291,7 +291,7 @@ var typeMutation = graphql.NewObject(graphql.ObjectConfig{
 					return nil, ErrCtxAnkaDB
 				}
 
-				curdb := anka.GetDatabase("user")
+				curdb := anka.GetDatabase("msg")
 				if curdb == nil {
 					return nil, ErrCtxCurDB
 				}
@@ -434,15 +434,6 @@ const queryUser = `query User($userID: ID!) {
 	}
 }`
 
-// // resultUser - user
-// type resultUser struct {
-// 	User struct {
-// 		NickName string `json:"nickName"`
-// 		UserID   string `json:"userID"`
-// 		UserName string `json:"userName"`
-// 	} `json:"user"`
-// }
-
 // GetUser - get user
 func (db *testDB) GetUser(userID string) (*testpb.User, error) {
 	if db.db == nil {
@@ -466,6 +457,44 @@ func (db *testDB) GetUser(userID string) (*testpb.User, error) {
 
 	user := &testpb.User{}
 	err = MakeMsgFromResultEx(result, "user", user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+const queryUserWithUserName = `query UserWithUserName($userName: ID!) {
+	userWithUserName(userName: $userName) {
+		nickName
+		userID
+		userName
+	}
+}`
+
+// GetUser - get user
+func (db *testDB) GetUserWithUserName(userName string) (*testpb.User, error) {
+	if db.db == nil {
+		return nil, ErrNotInit
+	}
+
+	params := make(map[string]interface{})
+	params["userName"] = userName
+
+	result, err := db.db.Query(context.Background(), queryUserWithUserName, params)
+	if err != nil {
+		return nil, err
+	}
+
+	err = GetResultError(result)
+	if err != nil {
+		return nil, err
+	}
+
+	// fmt.Printf("%v", result)
+
+	user := &testpb.User{}
+	err = MakeMsgFromResultEx(result, "userWithUserName", user)
 	if err != nil {
 		return nil, err
 	}
@@ -511,6 +540,91 @@ func (db *testDB) GetUsers() (*testpb.UserList, error) {
 	}
 
 	return users, nil
+}
+
+const queryUpdMsg = `mutation UpdMsg($msg: MessageInput!) {
+	updMsg(msg: $msg) {
+		chatID
+	}
+}`
+
+// UpdMsg - update msg
+func (db *testDB) UpdMsg(msg *testpb.Message) (string, error) {
+	if db.db == nil {
+		return "", ErrNotInit
+	}
+
+	params := make(map[string]interface{})
+	params["msg"] = Msg2Map(msg)
+
+	result, err := db.db.Query(context.Background(), queryUpdMsg, params)
+	if err != nil {
+		return "", err
+	}
+
+	err = GetResultError(result)
+	if err != nil {
+		return "", err
+	}
+
+	// fmt.Printf("%v", result)
+
+	// uu := &resultUpdUser{}
+	// err = MakeObjFromResult(result, uu)
+	// if err != nil {
+	// 	return "", err
+	// }
+	retmsg := &testpb.Message{}
+	err = MakeMsgFromResultEx(result, "updMsg", retmsg)
+	if err != nil {
+		return "", err
+	}
+
+	return retmsg.ChatID, nil
+}
+
+const queryMsg = `query Msg($chatID: ID!) {
+	msg(chatID: $chatID) {
+		chatID
+		from{
+			userID
+		}
+		to{
+			userID
+		}
+		text
+		timeStamp
+	}
+}`
+
+// GetMsg - get message
+func (db *testDB) GetMsg(chatID string) (*testpb.Message, error) {
+	if db.db == nil {
+		return nil, ErrNotInit
+	}
+
+	params := make(map[string]interface{})
+	params["chatID"] = chatID
+
+	result, err := db.db.Query(context.Background(), queryMsg, params)
+	if err != nil {
+		return nil, err
+	}
+
+	err = GetResultError(result)
+	if err != nil {
+		return nil, err
+	}
+
+	// fmt.Printf("%v", result)
+
+	msg := &testpb.Message{}
+	err = MakeMsgFromResultEx(result, "msg", msg)
+	if err != nil {
+		return nil, err
+	}
+
+	return msg, nil
 }
 
 func Test_GraphQL(t *testing.T) {
@@ -580,6 +694,31 @@ func Test_GraphQL(t *testing.T) {
 
 			return
 		}
+
+		user1, err := tdb.GetUserWithUserName(username)
+		if err != nil {
+			t.Fatalf("Test_GraphQL GetUserWithUserName err %v", err)
+
+			return
+		}
+
+		if user1.UserID != userid {
+			t.Fatalf("Test_GraphQL GetUserWithUserName UserID err %v", user1.UserID)
+
+			return
+		}
+
+		if user1.NickName != nickname {
+			t.Fatalf("Test_GraphQL GetUserWithUserName NickName err %v", user1.NickName)
+
+			return
+		}
+
+		if user1.UserName != username {
+			t.Fatalf("Test_GraphQL GetUserWithUserName UserName err %v", user1.UserName)
+
+			return
+		}
 	}
 
 	users, err := tdb.GetUsers()
@@ -619,6 +758,38 @@ func Test_GraphQL(t *testing.T) {
 
 			return
 		}
+	}
+
+	chatid, err := tdb.UpdMsg(&testpb.Message{
+		ChatID: "00001",
+		From: &testpb.User{
+			UserID: "1",
+		},
+		To: &testpb.User{
+			UserID: "2",
+		},
+		Text:      "text",
+		TimeStamp: 1234567,
+	})
+	if err != nil {
+		t.Fatalf("Test_GraphQL UpdMsg err %v", err)
+	}
+
+	if chatid != "00001" {
+		t.Fatalf("Test_GraphQL UpdMsg chatid err %v", chatid)
+
+		return
+	}
+
+	msg, err := tdb.GetMsg("00001")
+	if err != nil {
+		t.Fatalf("Test_GraphQL GetMsg err %v", err)
+	}
+
+	if msg.Text != "text" {
+		t.Fatalf("Test_GraphQL GetMsg msg.Text err %v", msg.Text)
+
+		return
 	}
 
 	t.Logf("Test_GraphQL OK")

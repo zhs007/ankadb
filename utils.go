@@ -310,10 +310,10 @@ func decodeStruct(t reflect.Type, v reflect.Value) map[string]interface{} {
 	return data
 }
 
-// Map2Msg - protobuf message to map
-func Map2Msg(m map[string]interface{}, msg proto.Message) error {
-	// t := reflect.TypeOf(msg)
-	// v := reflect.ValueOf(msg)
+// // Map2Msg - protobuf message to map
+// func Map2Msg(m map[string]interface{}, msg proto.Message) error {
+// 	// t := reflect.TypeOf(msg)
+// 	// v := reflect.ValueOf(msg)
 
-	return nil
-}
+// 	return nil
+// }
