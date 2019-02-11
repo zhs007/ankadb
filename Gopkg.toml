@@ -27,7 +27,7 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/goinggo/mapstructure"
+  name = "github.com/mitchellh/mapstructure"
 
 [[constraint]]
   name = "github.com/golang/protobuf"

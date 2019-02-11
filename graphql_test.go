@@ -3,8 +3,11 @@ package ankadb
 import (
 	"context"
 	"fmt"
+	"sort"
+	"strconv"
 	"testing"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/graphql-go/graphql"
 	"github.com/zhs007/ankadb/graphqlext"
 	"github.com/zhs007/ankadb/test"
@@ -206,6 +209,28 @@ var typeQuery = graphql.NewObject(
 					}
 
 					lstUser := &testpb.UserList{}
+					it := curdb.NewIteratorWithPrefix([]byte(prefixKeyUser))
+					if it.Error() != nil {
+						return nil, it.Error()
+					}
+
+					for {
+						if it.Valid() {
+							cu := &testpb.User{}
+							err := proto.Unmarshal(it.Value(), cu)
+							if err != nil {
+								return nil, err
+							}
+
+							// fmt.Printf("key-%v value-%v\n", it.Key(), cu)
+
+							lstUser.Users = append(lstUser.Users, cu)
+						}
+
+						if !it.Next() {
+							break
+						}
+					}
 
 					return lstUser, nil
 				},
@@ -359,12 +384,12 @@ const queryUpdUser = `mutation UpdUser($user: UserInput!) {
 	}
 }`
 
-// resultUpdUser - updUser
-type resultUpdUser struct {
-	UpdUser struct {
-		UserID string `json:"userID"`
-	} `json:"updUser"`
-}
+// // resultUpdUser - updUser
+// type resultUpdUser struct {
+// 	UpdUser struct {
+// 		UserID string `json:"userID"`
+// 	} `json:"updUser"`
+// }
 
 // UpdUser - update user
 func (db *testDB) UpdUser(user *testpb.User) (string, error) {
@@ -409,14 +434,14 @@ const queryUser = `query User($userID: ID!) {
 	}
 }`
 
-// resultUser - user
-type resultUser struct {
-	User struct {
-		NickName string `json:"nickName"`
-		UserID   string `json:"userID"`
-		UserName string `json:"userName"`
-	} `json:"user"`
-}
+// // resultUser - user
+// type resultUser struct {
+// 	User struct {
+// 		NickName string `json:"nickName"`
+// 		UserID   string `json:"userID"`
+// 		UserName string `json:"userName"`
+// 	} `json:"user"`
+// }
 
 // GetUser - get user
 func (db *testDB) GetUser(userID string) (*testpb.User, error) {
@@ -446,6 +471,46 @@ func (db *testDB) GetUser(userID string) (*testpb.User, error) {
 	}
 
 	return user, nil
+}
+
+const queryUsers = `{
+	users {
+		users {
+			nickName
+			userID
+			userName
+		}
+	}
+}`
+
+// GetUsers - get users
+func (db *testDB) GetUsers() (*testpb.UserList, error) {
+	if db.db == nil {
+		return nil, ErrNotInit
+	}
+
+	// params := make(map[string]interface{})
+	// params["userID"] = userID
+
+	result, err := db.db.Query(context.Background(), queryUsers, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	err = GetResultError(result)
+	if err != nil {
+		return nil, err
+	}
+
+	// fmt.Printf("%v", result)
+
+	users := &testpb.UserList{}
+	err = MakeMsgFromResultEx(result, "users", users)
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
 
 func Test_GraphQL(t *testing.T) {
@@ -512,6 +577,45 @@ func Test_GraphQL(t *testing.T) {
 
 		if user.UserName != username {
 			t.Fatalf("Test_GraphQL GetUser UserName err %v", user.UserName)
+
+			return
+		}
+	}
+
+	users, err := tdb.GetUsers()
+	if err != nil {
+		t.Fatalf("Test_GraphQL GetUsers err %v", err)
+	}
+
+	if len(users.Users) != 100 {
+		t.Fatalf("Test_GraphQL GetUsers len err %v", len(users.Users))
+	}
+
+	sort.Slice(users.Users, func(i, j int) bool {
+		iuid, _ := strconv.Atoi(users.Users[i].UserID)
+		juid, _ := strconv.Atoi(users.Users[j].UserID)
+		return iuid < juid
+	})
+
+	for i := 0; i < 100; i++ {
+		nickname := fmt.Sprintf("user %d", i)
+		userid := fmt.Sprintf("%d", (i + 1))
+		username := fmt.Sprintf("user%d", i)
+
+		if users.Users[i].UserID != userid {
+			t.Fatalf("Test_GraphQL GetUsers UserID err %v", users.Users[i].UserID)
+
+			return
+		}
+
+		if users.Users[i].NickName != nickname {
+			t.Fatalf("Test_GraphQL GetUsers NickName err %v", users.Users[i].NickName)
+
+			return
+		}
+
+		if users.Users[i].UserName != username {
+			t.Fatalf("Test_GraphQL GetUsers UserName err %v", users.Users[i].UserName)
 
 			return
 		}

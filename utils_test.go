@@ -31,6 +31,31 @@ func Test_Msg2Map(t *testing.T) {
 		t.Fatalf("Test_Msg2Map err k-%v v-%v", k, v)
 	}
 
+	// NickName is empty
+	user1 := &testpb.User{
+		UserID:   "2",
+		UserName: "user1",
+	}
+
+	muser1 := Msg2Map(user1)
+
+	for k, v := range muser1 {
+		// NickName is empty
+		if k == "nickName" && v == "" {
+			continue
+		}
+
+		if k == "userID" && v == "2" {
+			continue
+		}
+
+		if k == "userName" && v == "user1" {
+			continue
+		}
+
+		t.Fatalf("Test_Msg2Map err k-%v v-%v", k, v)
+	}
+
 	userlist := &testpb.UserList{}
 	userlist.Users = append(userlist.Users, user0)
 	muserlist := Msg2Map(userlist)

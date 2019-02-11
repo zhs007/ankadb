@@ -8,13 +8,13 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/goinggo/mapstructure"
 	"github.com/golang/protobuf/proto"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/graphql/gqlerrors"
 	"github.com/graphql-go/graphql/language/ast"
 	"github.com/graphql-go/graphql/language/parser"
 	"github.com/graphql-go/graphql/language/source"
+	"github.com/mitchellh/mapstructure"
 	"github.com/zhs007/ankadb/database"
 )
 
@@ -273,4 +273,47 @@ func Msg2Map(msg proto.Message) map[string]interface{} {
 	v := reflect.ValueOf(msg)
 
 	return buildStruct(t, v)
+}
+
+func decodeStruct(t reflect.Type, v reflect.Value) map[string]interface{} {
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	var data = make(map[string]interface{})
+	for i := 0; i < t.NumField(); i++ {
+		jsonname := t.Field(i).Tag.Get("json")
+		if jsonname != "" && jsonname != "-" {
+			arr := strings.Split(jsonname, ",")
+
+			cv := v.Field(i)
+			if cv.Kind() == reflect.Ptr {
+				cv = cv.Elem()
+			}
+
+			if cv.Kind() == reflect.Slice {
+				data[arr[0]] = buildSlice(t.Field(i).Type, cv)
+			} else if cv.Kind() == reflect.Struct {
+				data[arr[0]] = buildStruct(t.Field(i).Type, cv)
+			} else {
+				data[arr[0]] = cv.Interface()
+			}
+		}
+	}
+
+	// fmt.Printf("buildStruct-%v\n", data)
+
+	return data
+}
+
+// Map2Msg - protobuf message to map
+func Map2Msg(m map[string]interface{}, msg proto.Message) error {
+	// t := reflect.TypeOf(msg)
+	// v := reflect.ValueOf(msg)
+
+	return nil
 }
