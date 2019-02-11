@@ -33,4 +33,6 @@ var (
 	ErrNotInit = errors.New("not initialization")
 	// ErrParamIsNotMap - param is not a map
 	ErrParamIsNotMap = errors.New("param is not a map")
+	// ErrResultIsNotMap - result is not a map
+	ErrResultIsNotMap = errors.New("result is not a map")
 )
