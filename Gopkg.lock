@@ -2,12 +2,6 @@
 
 
 [[projects]]
-  branch = "master"
-  name = "github.com/goinggo/mapstructure"
-  packages = ["."]
-  revision = "194205d9b4a98eff86d4e8d3c0dfe87dea59ef81"
-
-[[projects]]
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
@@ -42,6 +36,12 @@
   ]
   revision = "08943645bf265d192b32f2100cdff2428f7ae7c5"
   version = "v0.7.7"
+
+[[projects]]
+  name = "github.com/mitchellh/mapstructure"
+  packages = ["."]
+  revision = "3536a929edddb9a5b34bd6861dc4a9647cb459fe"
+  version = "v1.1.2"
 
 [[projects]]
   branch = "master"
@@ -162,6 +162,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "269f8ff34724febc1f954d7aa20df132c2fe2b1d53a56e00c4e883fca2197675"
+  inputs-digest = "04264ccd6230086b020d9166a85f005caeea9291f0a21cac32f0225191efdbee"
   solver-name = "gps-cdcl"
   solver-version = 1
