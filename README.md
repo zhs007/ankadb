@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/zhs007/ankadb.svg?branch=master)](https://travis-ci.org/zhs007/ankadb)
 
 ``AnkaDB`` is a scalable embedded database with ``golang``.  
-``AnkaDB`` supports multiple database engines, now ``LevelDB``, and will soon support ``RocksDB``.  
+``AnkaDB`` supports multiple database engines, ``LevelDB`` and ``RocksDB``.  
 ``AnkaDB`` is now single-node and will soon support multiple nodes, using the ``raft`` protocol.  
 ``AnkaDB`` queries and modifies data with ``GraphQL``.  
 ``AnkaDB`` used ``GRPC`` & ``ProtoBuf v3``.  
