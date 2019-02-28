@@ -1,0 +1,1 @@
+docker build -f ./Dockerfile.unittest -t ankadb.unittest .
