@@ -46,3 +46,11 @@ GraphQL sample is [here](https://github.com/zhs007/ankadb/blob/master/graphql_te
 ### AnkaDB Development Log
 
 [``Come Here``](https://github.com/zhs007/ankadb/blob/master/blog.md)
+
+---
+### How To Upgrade v2 To v3
+
+- change ``*AnkaDB`` to ``AnkaDB``
+- change ``Config`` to ``*Config``
+- change ``MgrDB`` to ``GetDBMgr()``
+- remove your ``dblogic``, and use ``ankadb.NewBaseDBLogic`` new a DBLogic
