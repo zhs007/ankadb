@@ -22,8 +22,8 @@ type Config struct {
 }
 
 // NewConfig -
-func NewConfig() Config {
-	return Config{}
+func NewConfig() *Config {
+	return &Config{}
 }
 
 // LoadConfig -
@@ -34,10 +34,10 @@ func LoadConfig(cfgfilename string) (*Config, error) {
 	}
 
 	cfg := NewConfig()
-	err = yaml.Unmarshal(yamlFile, &cfg)
+	err = yaml.Unmarshal(yamlFile, cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	return &cfg, nil
+	return cfg, nil
 }
