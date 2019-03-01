@@ -50,7 +50,9 @@ GraphQL sample is [here](https://github.com/zhs007/ankadb/blob/master/graphql_te
 ---
 ### How To Upgrade v2 To v3
 
-- change ``*AnkaDB`` to ``AnkaDB``
-- change ``Config`` to ``*Config``
-- change ``MgrDB`` to ``GetDBMgr()``
-- remove your ``dblogic``, and use ``ankadb.NewBaseDBLogic`` new a DBLogic
+- change ``*AnkaDB`` to ``AnkaDB``.
+- change ``Config`` to ``*Config``.
+- change ``MgrDB`` to ``GetDBMgr()``.
+- remove your ``dblogic``, and use ``ankadb.NewBaseDBLogic`` new a DBLogic.
+- ``Config.ListDB.PathDB`` doesn't require join ``Config.PathDBRoot``.
+- you can remove all the query result definitions, and use ``MakeMsgFromResultEx`` to resolve the query result.
