@@ -1,5 +1,14 @@
 # AnkaDB Development Log
 
+### 2019-02-28
+
+今天发现``GraphQL``里的逻辑代码其实很难进行单元测试，所以调整了代码结构，将参数解析以后的代码移到basefunc里，这样可以更方便的做测试。  
+然后还增加了v0.2升级到v0.3的注意事项。
+
+I found that the logic code in ``GraphQL`` is difficult to unit test, so I  moved the code outside the parameter parsing to basefunc, so that these functions can be tested.  
+
+Then I added the precautions for v0.2 upgrade to v0.3.
+
 ### 2019-02-10
 
 今天增加了Dockerfile，主要是为了``RocksDB``编译加的，还调整了``travis``配置，直接用``Docker``。  
