@@ -15,6 +15,7 @@ import (
 	"github.com/graphql-go/graphql/language/parser"
 	"github.com/graphql-go/graphql/language/source"
 	"github.com/mitchellh/mapstructure"
+	"github.com/syndtr/goleveldb/leveldb/iterator"
 	"github.com/zhs007/ankadb/database"
 )
 
@@ -317,3 +318,15 @@ func decodeStruct(t reflect.Type, v reflect.Value) map[string]interface{} {
 
 // 	return nil
 // }
+
+// GetMsgFromIterator - get protobuf message from iterator.Iterator
+func GetMsgFromIterator(it iterator.Iterator, msg proto.Message) error {
+	buf := it.Value()
+
+	err := proto.Unmarshal(buf, msg)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
