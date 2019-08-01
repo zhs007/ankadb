@@ -7,6 +7,9 @@ import (
 	"github.com/zhs007/ankadb/database"
 )
 
+// FuncAnkaDBForEach - func event
+type FuncAnkaDBForEach func(key string, value []byte) error
+
 // AnkaDB - AnkaDB interface
 type AnkaDB interface {
 	// Start - start service
@@ -24,6 +27,9 @@ type AnkaDB interface {
 	Get(ctx context.Context, dbname string, key string) ([]byte, error)
 	// Set - set value
 	Set(ctx context.Context, dbname string, key string, value []byte) error
+
+	// ForEachWithPrefix - for each with prefix
+	ForEachWithPrefix(ctx context.Context, dbname string, prefix string, foreach FuncAnkaDBForEach) error
 
 	// RegEventFunc - register a function for event
 	RegEventFunc(event string, eventfunc FuncAnkaDBEvent) error
@@ -196,6 +202,38 @@ func (anka *ankaDB) Set(ctx context.Context, dbname string, key string, value []
 	}
 
 	return db.Put([]byte(key), []byte(value))
+}
+
+// ForEachWithPrefix - for each with prefix
+func (anka *ankaDB) ForEachWithPrefix(ctx context.Context, dbname string, prefix string, foreach FuncAnkaDBForEach) error {
+	db := anka.mgrDB.GetDB(dbname)
+	if db == nil {
+		return ErrNotFoundDB
+	}
+
+	it := db.NewIteratorWithPrefix([]byte(prefix))
+	if it.Error() != nil {
+		return it.Error()
+	}
+
+	for {
+		if it.Valid() {
+			err := foreach(string(it.Key()), it.Value())
+			if err != nil {
+				it.Release()
+
+				return err
+			}
+		}
+
+		if !it.Next() {
+			break
+		}
+	}
+
+	it.Release()
+
+	return nil
 }
 
 // RegEventFunc - register a function for event
