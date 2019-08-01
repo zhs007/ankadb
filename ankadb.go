@@ -27,6 +27,8 @@ type AnkaDB interface {
 	Get(ctx context.Context, dbname string, key string) ([]byte, error)
 	// Set - set value
 	Set(ctx context.Context, dbname string, key string, value []byte) error
+	// Delete - deletes the key from database
+	Delete(ctx context.Context, dbname string, key string) error
 
 	// ForEachWithPrefix - for each with prefix
 	ForEachWithPrefix(ctx context.Context, dbname string, prefix string, foreach FuncAnkaDBForEach) error
@@ -202,6 +204,16 @@ func (anka *ankaDB) Set(ctx context.Context, dbname string, key string, value []
 	}
 
 	return db.Put([]byte(key), []byte(value))
+}
+
+// Delete - deletes the key from database
+func (anka *ankaDB) Delete(ctx context.Context, dbname string, key string) error {
+	db := anka.mgrDB.GetDB(dbname)
+	if db == nil {
+		return ErrNotFoundDB
+	}
+
+	return db.Delete([]byte(key))
 }
 
 // ForEachWithPrefix - for each with prefix
