@@ -2,6 +2,8 @@ FROM golang:1.12
 
 MAINTAINER zerro "zerrozhao@gmail.com"
 
+ENV GOPROXY https://goproxy.io
+
 WORKDIR /app/ankadb
 
 COPY ./go.* /app/ankadb/
