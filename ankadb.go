@@ -257,3 +257,8 @@ func (anka *ankaDB) RegEventFunc(event string, eventfunc FuncAnkaDBEvent) error 
 func (anka *ankaDB) GetDatabase(dbname string) database.Database {
 	return anka.mgrDB.GetDB(dbname)
 }
+
+// AddDatabase - add a databse
+func (anka *ankaDB) AddDatabase(dbcfg DBConfig) error {
+	return anka.mgrDB.AddDB(dbcfg)
+}

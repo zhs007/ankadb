@@ -42,6 +42,11 @@ type dbMgr struct {
 
 // AddDB -
 func (mgr *dbMgr) AddDB(cfg DBConfig) error {
+	_, isok := mgr.mapDB[cfg.Name]
+	if isok {
+		return ErrDuplicateDB
+	}
+
 	if cfg.Engine == "leveldb" {
 		db, err := database.NewAnkaLDB(path.Join(mgr.rootPath, cfg.PathDB), 16, 16)
 		if err != nil {
