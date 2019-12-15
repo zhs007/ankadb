@@ -35,4 +35,6 @@ var (
 	ErrParamIsNotMap = errors.New("param is not a map")
 	// ErrResultIsNotMap - result is not a map
 	ErrResultIsNotMap = errors.New("result is not a map")
+	// ErrDuplicateDB - duplicate name for database
+	ErrDuplicateDB = errors.New("duplicate name for database")
 )
