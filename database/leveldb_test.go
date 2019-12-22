@@ -35,7 +35,7 @@ func Test_LevelDB(t *testing.T) {
 	}
 
 	if hasnokey {
-		t.Fatalf("Test_LevelDB ankaLDB.Has err")
+		t.Fatalf("Test_LevelDB ankaLDB.Has hasnokey")
 
 		return
 	}

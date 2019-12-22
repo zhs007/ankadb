@@ -45,6 +45,8 @@ type AnkaDB interface {
 
 	// GetDatabase - get databse with dbname
 	GetDatabase(dbname string) database.Database
+	// AddDatabase - add database
+	AddDatabase(dbcfg DBConfig) error
 }
 
 // ankaDB - An implementation for AnkaDB
