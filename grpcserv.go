@@ -47,8 +47,6 @@ func (s *ankaServer) stop() {
 	s.lis.Close()
 
 	s.grpcServ.Stop()
-
-	return
 }
 
 // Query implements ankadbpb.ankaServer
@@ -63,7 +61,7 @@ func (s *ankaServer) Query(ctx context.Context, in *pb.Query) (*pb.ReplyQuery, e
 	}
 
 	// curdb := s.anka.MgrDB.GetDB(in.GetName())
-	curctx := context.WithValue(ctx, interface{}("ankadb"), s.anka)
+	curctx := context.WithValue(ctx, RequestIDKey, s.anka)
 
 	result, err := s.anka.logic.Query(curctx, in.GetQueryData(), mapval)
 	if err != nil {

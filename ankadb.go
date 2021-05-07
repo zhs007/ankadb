@@ -30,6 +30,13 @@ type AnkaDB interface {
 	// Delete - deletes the key from database
 	Delete(ctx context.Context, dbname string, key string) error
 
+	// GetEx - get value
+	GetEx(ctx context.Context, dbname string, key []byte) ([]byte, error)
+	// SetEx - set value
+	SetEx(ctx context.Context, dbname string, key []byte, value []byte) error
+	// Delete - deletes the key from database
+	DeleteEx(ctx context.Context, dbname string, key []byte) error
+
 	// ForEachWithPrefix - for each with prefix
 	ForEachWithPrefix(ctx context.Context, dbname string, prefix string, foreach FuncAnkaDBForEach) error
 
@@ -122,20 +129,21 @@ func (anka *ankaDB) Start(ctx context.Context) error {
 
 	anka.mgrEvent.onAnkaDBEvent(ctx, EventOnStarted)
 
-	select {
-	case <-ctx.Done():
-		if grpccancel != nil {
-			grpccancel()
-		}
+	// select {
+	<-ctx.Done()
 
-		if httpcancel != nil {
-			httpcancel()
-		}
-
-		anka.stop()
-
-		return nil
+	if grpccancel != nil {
+		grpccancel()
 	}
+
+	if httpcancel != nil {
+		httpcancel()
+	}
+
+	anka.stop()
+
+	return nil
+	// }
 }
 
 // stop -
@@ -153,7 +161,7 @@ func (anka *ankaDB) stop() error {
 
 // Query - query
 func (anka *ankaDB) Query(ctx context.Context, request string, values map[string]interface{}) (*graphql.Result, error) {
-	curctx := context.WithValue(ctx, interface{}("ankadb"), anka)
+	curctx := context.WithValue(ctx, RequestIDKey, anka)
 
 	return anka.logic.Query(curctx, request, values)
 }
@@ -216,6 +224,41 @@ func (anka *ankaDB) Delete(ctx context.Context, dbname string, key string) error
 	}
 
 	return db.Delete([]byte(key))
+}
+
+// GetEx - get value
+func (anka *ankaDB) GetEx(ctx context.Context, dbname string, key []byte) ([]byte, error) {
+	db := anka.mgrDB.GetDB(dbname)
+	if db == nil {
+		return nil, ErrNotFoundDB
+	}
+
+	val, err := db.Get(key)
+	if err == database.ErrNotFound {
+		return nil, ErrNotFoundKey
+	}
+
+	return val, err
+}
+
+// SetEx - set value
+func (anka *ankaDB) SetEx(ctx context.Context, dbname string, key []byte, value []byte) error {
+	db := anka.mgrDB.GetDB(dbname)
+	if db == nil {
+		return ErrNotFoundDB
+	}
+
+	return db.Put(key, []byte(value))
+}
+
+// Delete - deletes the key from database
+func (anka *ankaDB) DeleteEx(ctx context.Context, dbname string, key []byte) error {
+	db := anka.mgrDB.GetDB(dbname)
+	if db == nil {
+		return ErrNotFoundDB
+	}
+
+	return db.Delete(key)
 }
 
 // ForEachWithPrefix - for each with prefix

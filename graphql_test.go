@@ -10,7 +10,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/graphql-go/graphql"
 	"github.com/zhs007/ankadb/graphqlext"
-	"github.com/zhs007/ankadb/test"
+	testpb "github.com/zhs007/ankadb/test"
 )
 
 const prefixKeyMessage = "msg:"
@@ -144,7 +144,7 @@ var typeQuery = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					anka := GetContextValueAnkaDB(params.Context, interface{}("ankadb"))
+					anka := GetContextValueAnkaDB(params.Context, RequestIDKey)
 					if anka == nil {
 						return nil, ErrCtxAnkaDB
 					}
@@ -173,7 +173,7 @@ var typeQuery = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					anka := GetContextValueAnkaDB(params.Context, interface{}("ankadb"))
+					anka := GetContextValueAnkaDB(params.Context, RequestIDKey)
 					if anka == nil {
 						return nil, ErrCtxAnkaDB
 					}
@@ -198,7 +198,7 @@ var typeQuery = graphql.NewObject(
 				Type: typeUserList,
 				Args: graphql.FieldConfigArgument{},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					anka := GetContextValueAnkaDB(params.Context, interface{}("ankadb"))
+					anka := GetContextValueAnkaDB(params.Context, RequestIDKey)
 					if anka == nil {
 						return nil, ErrCtxAnkaDB
 					}
@@ -243,7 +243,7 @@ var typeQuery = graphql.NewObject(
 					},
 				},
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					anka := GetContextValueAnkaDB(params.Context, interface{}("ankadb"))
+					anka := GetContextValueAnkaDB(params.Context, RequestIDKey)
 					if anka == nil {
 						return nil, ErrCtxAnkaDB
 					}
@@ -286,7 +286,7 @@ var typeMutation = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				anka := GetContextValueAnkaDB(params.Context, interface{}("ankadb"))
+				anka := GetContextValueAnkaDB(params.Context, RequestIDKey)
 				if anka == nil {
 					return nil, ErrCtxAnkaDB
 				}
@@ -319,7 +319,7 @@ var typeMutation = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				anka := GetContextValueAnkaDB(params.Context, interface{}("ankadb"))
+				anka := GetContextValueAnkaDB(params.Context, RequestIDKey)
 				if anka == nil {
 					return nil, ErrCtxAnkaDB
 				}

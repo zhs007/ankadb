@@ -47,14 +47,14 @@ func Test_AnkaDB(t *testing.T) {
 		}
 
 		for i := 0; i < 100; i++ {
-			val, err := ankaf.Get(ctxf, "test001-3", fmt.Sprintf("test001-1-%d", i))
+			_, err := ankaf.Get(ctxf, "test001-3", fmt.Sprintf("test001-1-%d", i))
 			if err != ErrNotFoundDB {
 				t.Fatalf("Test_AnkaDB Get err")
 
 				return nil
 			}
 
-			val, err = ankaf.Get(ctxf, "test001-1", fmt.Sprintf("test001-1-%d", i))
+			val, err := ankaf.Get(ctxf, "test001-1", fmt.Sprintf("test001-1-%d", i))
 			if err != nil {
 				t.Fatalf("Test_AnkaDB Get err %v", err)
 
@@ -67,7 +67,7 @@ func Test_AnkaDB(t *testing.T) {
 				return nil
 			}
 
-			val, err = ankaf.Get(ctxf, "test001-1", fmt.Sprintf("test001-2-%d", i))
+			_, err = ankaf.Get(ctxf, "test001-1", fmt.Sprintf("test001-2-%d", i))
 			if err != ErrNotFoundKey {
 				t.Fatalf("Test_AnkaDB Get err")
 
@@ -87,7 +87,7 @@ func Test_AnkaDB(t *testing.T) {
 				return nil
 			}
 
-			val, err = ankaf.Get(ctxf, "test001-2", fmt.Sprintf("test001-1-%d", i))
+			_, err = ankaf.Get(ctxf, "test001-2", fmt.Sprintf("test001-1-%d", i))
 			if err != ErrNotFoundKey {
 				t.Fatalf("Test_AnkaDB Get err")
 
